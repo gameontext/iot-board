@@ -1,0 +1,3 @@
+iotboard:
+ volumes:
+   - '/Users/adam/GitHub/iotboard/iotboard-wlpcfg/servers/iotboard:/opt/ibm/wlp/usr/servers/defaultServer'

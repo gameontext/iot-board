@@ -1,0 +1,5 @@
+iotboard:
+ build: iotboard-wlpcfg
+ ports:
+  - "7095:9080"
+  - "7098:9443"

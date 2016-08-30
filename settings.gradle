@@ -1,0 +1,4 @@
+include 'iotboard-app'
+include 'iotboard-wlpcfg'
+
+rootProject.name='iotboard'
