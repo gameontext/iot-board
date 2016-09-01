@@ -1,67 +1,31 @@
-<!DOCTYPE html>
-  <meta charset="utf-8" />
-  <title>WebSocket Test</title>
-  <script language="javascript" type="text/javascript">
-
-  console.log("Window.location.host is ");
-  console.log(window.location.host);
-  var wsUri = "ws://"+window.location.host+"/board/kafkarxjava";
-  var output;
-
-  function init()
-  {
-    output = document.getElementById("output");
-    testWebSocket();
-  }
-
-  function testWebSocket()
-  {
-    websocket = new WebSocket(wsUri);
-    websocket.onopen = function(evt) { onOpen(evt) };
-    websocket.onclose = function(evt) { onClose(evt) };
-    websocket.onmessage = function(evt) { onMessage(evt) };
-    websocket.onerror = function(evt) { onError(evt) };
-  }
-
-  function onOpen(evt)
-  {
-    writeToScreen("CONNECTED");
-  }
-
-  function onClose(evt)
-  {
-    writeToScreen("DISCONNECTED");
-  }
-
-  function onMessage(evt)
-  {
-    writeToScreen('<span style="color: blue;">RESPONSE: ' + evt.data+'</span>');
-    //websocket.close();
-  }
-
-  function onError(evt)
-  {
-    writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data);
-  }
-
-  function doSend(message)
-  {
-    writeToScreen("SENT: " + message);
-    websocket.send(message);
-  }
-
-  function writeToScreen(message)
-  {
-    var pre = document.createElement("p");
-    pre.style.wordWrap = "break-word";
-    pre.innerHTML = message;
-    output.appendChild(pre);
-  }
-
-  window.addEventListener("load", init, false);
-
-  </script>
-
-  <h2>WebSocket Test</h2>
-
-  <div id="output"></div>
+<!doctype html>
+<html lang="en" ng-app="iotBoardApp">
+  <head>
+    <meta charset="utf-8">
+    <title>Game On! IoT Board</title>
+    <meta name="description" content="">
+    <link rel="stylesheet" href="styles/main.css">
+  </head>
+  <body>
+    <div>
+      <h4>Register device</h4>
+    </div>
+  <divng-controller="defaultCtrl">
+    <div class="one-half column">
+      <label for="username">Game On! Id</label>
+      <input class="u-full-width" type="text" name="gid" id="gid" ng-model="gid" placeholder="Enter your Game On! id e.g. github:1234567" />
+      <a class="button u-full-width" data-ng-click="registerDevice()">Register</a>
+    </div>
+  </div>
+  <div ng-controller="sitesCtrl">
+  	<h4 ng-repeat="site in sites">{{site._id}}</h4>
+  	<site ng-repeat="site in sites" />
+  </div>
+  
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+  <script src="scripts/app.js"></script>
+  <script src="scripts/controllers/default.js"></script>
+  <script src="scripts/directives/site.js"></script>
+  </body>
+</html>
