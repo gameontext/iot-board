@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.gameontext.iotboard.provider;
 
+import org.gameontext.iotboard.models.DeviceRegistration;
 import org.gameontext.iotboard.models.devices.BoardControl;
 
 /**
@@ -36,4 +37,10 @@ public interface BoardProvider {
      * @param msg control message to process
      */
     public void process(BoardControl msg);
+
+    /**
+     * Handle a registration of a specific device
+     * @param registration the details of the device to register
+     */
+    public void registerDevice(DeviceRegistration registration);
 }

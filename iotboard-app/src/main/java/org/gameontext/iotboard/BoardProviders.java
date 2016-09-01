@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import org.gameontext.iotboard.provider.BoardProvider;
 import org.gameontext.iotboard.provider.virtual.VirtualBoardProvider;
@@ -34,6 +35,9 @@ import org.gameontext.iotboard.provider.virtual.VirtualBoardProvider;
 
 @ApplicationScoped
 public class BoardProviders {
+    
+    @Inject
+    VirtualBoardProvider vbp;
     
     private final ConcurrentMap<String, BoardProvider> providers = new ConcurrentHashMap<>();
     
@@ -54,7 +58,6 @@ public class BoardProviders {
     @PostConstruct
     public void init() {
         //pre-load with a virtual board services
-        VirtualBoardProvider vbp = new VirtualBoardProvider();
         providers.put(vbp.getProviderId(), vbp);
     }
 }
