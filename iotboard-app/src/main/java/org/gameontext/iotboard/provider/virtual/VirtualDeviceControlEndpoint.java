@@ -16,38 +16,21 @@
 package org.gameontext.iotboard.provider.virtual;
 
 import java.net.HttpURLConnection;
-import java.net.URI;
 
 import javax.inject.Inject;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.gameontext.iotboard.BoardModificationException;
-import org.gameontext.iotboard.BoardProviders;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.gameontext.iotboard.models.DeviceRegistration;
-import org.gameontext.iotboard.models.devices.BoardControl;
-import org.gameontext.iotboard.provider.BoardProvider;
-
-import com.sun.xml.internal.ws.client.RequestContext;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 
 /**
  * Root for controlling the state of any registered boards
@@ -60,42 +43,11 @@ public class VirtualDeviceControlEndpoint {
     @Inject
     protected VirtualBoardProvider provider;
 
-    @Context
-    protected HttpServletRequest httpRequest;
-
-    private enum AuthMode { AUTHENTICATION_REQUIRED, UNAUTHENTICATED_OK };
-
-    /**
-     * GET /iotboard/v1/control
-     * @throws JsonProcessingException
-     */
-    @GET
-    //TODO this should be authorised so that only the GameOn board can talk to these endpoints
-    //@SignedRequest
-    @ApiOperation(value = "List configuration information",
-        notes = "Provide detailed information on boards that are currently registered",
-        code = HttpURLConnection.HTTP_OK)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getConfig() {
-
-//        StringBuilder builder = new StringBuilder("[");
-//            builder.append("{'name':'" + provider.getProviderId() + "'}\n");
-//        builder.append("]");
-//        return Response.ok(builder.toString()).build();
-//        
-//        
-        
-        IoTReg iotReg = new IoTReg("deviceid", "790y3h9t80yh*(&Y*^F*P==-0=-iu8yh");
-        return Response.ok(iotReg).build();
-    }
-    
     @POST
     @Path("test")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response check(@Context HttpHeaders allHeaders, String data) {
-        System.out.println("Got | "+ data + "|");
-        System.out.println("All request headers: " + allHeaders.getRequestHeaders());
+    public Response check() throws MqttException {
+        provider.trigger();
         return Response.ok().build();
     }
     
@@ -104,7 +56,6 @@ public class VirtualDeviceControlEndpoint {
      * @throws JsonProcessingException
      */
     @POST
-    //TODO this should be authorised so that only the GameOn board can talk to these endpoints
     //@SignedRequest
     @ApiOperation(value = "Control a board",
         notes = "Creates an initial status for a light on any boards associated with this GameOn and Site ID",
@@ -114,94 +65,8 @@ public class VirtualDeviceControlEndpoint {
     public Response registerDevice(
             @ApiParam(value = "Details of registering device", required = true) DeviceRegistration registration) {
 
-        System.out.println("Registering device");
-            provider.registerDevice(registration);
-        return Response.ok().build();
+        System.out.println("Registering device: " + registration.getDeviceId());
+        DeviceRegistrationResponse drr = provider.registerDevice(registration);
+        return Response.ok(drr).build();
     }
-
-    
-    
-    /**
-     * POST /iotboard/v1/control
-     * @throws JsonProcessingException
-     */
-    @POST
-    //TODO this should be authorised so that only the GameOn board can talk to these endpoints
-    //@SignedRequest
-    @ApiOperation(value = "Control a board",
-        notes = "Creates an initial status for a light on any boards associated with this GameOn and Site ID",
-        code = HttpURLConnection.HTTP_OK)
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response registerDeviceByForm() {
-
-        System.out.println("Registering device");
-            provider.registerDevice(new DeviceRegistration());
-        return Response.ok().build();
-    }
-
-    
-    /**
-     * PUT /map/v1/sites/:id
-     * @throws JsonProcessingException
-     */
-    @PUT
-    //@SignedRequest
-    @Path("{id}")
-    @ApiOperation(value = "Update a specific device on a board")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response updateRoom(
-            @ApiParam(value = "Updated device attributes", required = true) BoardControl control) {
-
-            provider.process(control);
-        return Response.ok().build();
-    }
-
-
-    /**
-     * DELETE /map/v1/sites/:id
-     */
-    @DELETE
-    //@SignedRequest
-    @Path("{id}")
-    @ApiOperation(value = "Delete a room associated with a device on a board",
-        notes = "",
-        code = 204 )
-    @ApiResponses(value = {
-        @ApiResponse(code = 204, message = "Delete successful")
-    })
-    public Response deleteRoom(
-            @ApiParam(value = "target room id", required = true) @PathParam("id") String roomId) {
-
-        //mapRepository.deleteSite(getAuthenticatedId(AuthMode.AUTHENTICATION_REQUIRED), roomId);
-        return Response.noContent().build();
-    }
-
-    private String getAuthenticatedId(AuthMode mode){
-        // This attribute will be set by the auth filter when a user has made
-        // an authenticated request.
-        String authedId = (String) httpRequest.getAttribute("player.id");
-        switch(mode){
-            case AUTHENTICATION_REQUIRED:{
-                if (authedId == null || authedId.isEmpty()) {
-                    //else we don't allow unauthenticated, so if auth id is absent
-                    //throw exception to prevent handling the request.
-                    throw new BoardModificationException(Response.Status.BAD_REQUEST,
-                             "Unauthenticated client", "Room owner could not be determined.");
-                }
-                break;
-            }
-            case UNAUTHENTICATED_OK:{
-                //if we allow unauthenticated, we will clean up so null==unauthed.
-                if(authedId!=null && authedId.isEmpty()){
-                    authedId = null;
-                }
-                break;
-            }
-        }
-        return authedId;
-
-    }
-
 }

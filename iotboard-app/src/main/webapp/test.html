@@ -7,8 +7,23 @@
 <body>
 <!--  Register the virtual device from here. Just an input box and a button -->
 
-<form action="v1/devices" method="post">
+
+<form id="myform">
+<label for="myform">Label</label><input id="playerId" name="playerId" type="text" />
 <input type="submit" />
 </form>
+<div id="msg"></div>
+
+
+<input type="button" id="commandButton" name="Do Button Stuff" />
+
+	<!-- Please do not change the order of these links as some depend on each other -->
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript" src="js/mqttws31.js"></script>
+	<script type="text/javascript" src="js/device.js"></script>
+	
+	
+	
 </body>
+
 </html>
