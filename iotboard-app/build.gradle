@@ -26,7 +26,8 @@ dependencies {
 
     // jackson
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.7.5'
-
+    // IoT foundation
+    compile 'com.ibm.messaging:watson-iot:0.1.4'
 }
 
 
