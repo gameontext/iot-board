@@ -45,8 +45,8 @@
 	}
 
 	function connectDevice() {
-		eventTopic = window.eventTopic;//"iot-2/type/iot-phone/id/RossPhone/evt/sensorData/fmt/json";
-		cmdTopic = window.cmdTopic;//"iot-2/cmd/+/fmt/json";
+		eventTopic = window.eventTopic;
+		cmdTopic = window.cmdTopic;
 		console.log(window.deviceId, window.password);
 		$("#deviceId").html(window.deviceId);
 
@@ -71,11 +71,11 @@
 				console.log("Response");
 				console.log(response);
 				var responseObject = response;
-				window.iot_host = responseObject.iotMessagingOrgAndHost; //"pmoxqf" + ".messaging.internetofthings.ibmcloud.com";
-				window.iot_port = responseObject.iotMessagingPort; // 1883;
-				window.deviceId = responseObject.deviceId; //"RossPhone";
-				window.password = responseObject.deviceAuthToken; //"12345678";
-				window.iot_clientid = responseObject.iotClientId; //"d:"+"pmoxqf"+":iot-phone:"+window.deviceId;
+				window.iot_host = responseObject.iotMessagingOrgAndHost;
+				window.iot_port = responseObject.iotMessagingPort;
+				window.deviceId = responseObject.deviceId;
+				window.password = responseObject.deviceAuthToken;
+				window.iot_clientid = responseObject.iotClientId;
 				window.eventTopic = responseObject.eventTopic;
 				window.cmdTopic = responseObject.cmdTopic;
 				window.client = new Paho.MQTT.Client(window.iot_host, window.iot_port, window.iot_clientid);

@@ -36,6 +36,7 @@ import org.gameontext.iotboard.models.DeviceRegistration;
 import org.gameontext.iotboard.models.devices.BoardControl;
 import org.gameontext.iotboard.provider.BoardProvider;
 
+import com.google.gson.JsonObject;
 import com.ibm.iotf.client.app.ApplicationClient;
 
 @ApplicationScoped
@@ -82,7 +83,7 @@ public class VirtualBoardProvider implements BoardProvider {
         drr.setDeviceAuthToken(rr.getAuthToken());
         drr.setIotClientId(rr.getClientId());
         drr.setEventTopic("iot-2/type/"+ rr.getTypeId() +"/id/"+ rr.getDeviceId() + "/evt/+/fmt/json");
-        drr.setCmdTopic("iot-2/cmd/test/fmt/json");
+        drr.setCmdTopic("iot-2/cmd/+/fmt/json");
 
         
         try {
@@ -94,7 +95,7 @@ public class VirtualBoardProvider implements BoardProvider {
             props.setProperty("Authentication-Token", iotConfig.getApiToken());
             System.out.println("props: " + props);
             appclient = new ApplicationClient(props);
-            deviceId = drr.getDeviceId();
+            this.deviceId = drr.getDeviceId();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -145,8 +146,10 @@ public class VirtualBoardProvider implements BoardProvider {
         System.out.println("Triggering");
         try {
             appclient.connect(1);
-//            System.out.println("Did it deliver? " + appclient.publishCommand("VirtualDevice", deviceId, "test", "data"));
-            System.out.println("Did it deliver? " + appclient.publishEvent("VirtualDevice", deviceId, "test", "data"));
+            JsonObject event = new JsonObject();
+            event.addProperty("testString", "testValue");
+            System.out.println("Publishing as " + deviceId);
+            System.out.println("Did it deliver? " + appclient.publishCommand("vdev", deviceId, "updates", event));
             appclient.disconnect();
         } catch (MqttException e) {
             e.printStackTrace();

@@ -8,7 +8,7 @@ public class IoTConfiguration {
     private String iotApiHost = "internetofthings.ibmcloud.com";
     private String iotMessagingHost = "messaging.internetofthings.ibmcloud.com";
     private int iotMessagingPort = 1883;
-    private String deviceType = "VirtualDevice";
+    private String deviceType = "vdev";
     
     public String getIotOrg() {
         return iotOrg;
