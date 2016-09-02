@@ -1,5 +1,20 @@
 <!-- Template for a site on the page -->
 
 <div>
-	This is a section of room {{site._id}}
+	<h4>IoT board for {{site.sid}}</h4>
+	This is a section of room {{site.sid}}<br/>
+	<div>
+		<h5>Room Registration Status</h5>
+		<svg height="100" width="200">
+			<g>	
+				<circle r="45" stroke="black" stroke-width="2" fill="{{site.reg.colour}}" cx="50" cy="50"/>
+				<text x="50" y="50" stroke="black" stroke-width="2"  text-anchor="middle">R</text>
+			</g>
+			<g>
+				<circle r="45" stroke="black" stroke-width=2" fill="{{site.player.colour}}" cx="150" cy="50"/>
+				<text x="150" y="50" stroke="black" stroke-width="2"  text-anchor="middle">P</text>
+			</g>
+		</svg>
+	</div>
+	<hr />
 </div>

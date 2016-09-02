@@ -23,8 +23,6 @@
 angular.module('iotBoardApp')
 .directive('site', function() {
   return {
-    scope: {
-    },
     restrict: 'E',
     transclude: true,
     templateUrl: 'templates/site.html',
@@ -40,6 +38,45 @@ angular.module('iotBoardApp')
 
   console.log("IoTBoard : using controller 'sitesCtrl'");
   
-  $scope.sites = [{_id: 'Test'}];
+  $scope.sites = [];
   
+  $scope.addSite = function() {
+	  $scope.sites.push({sid:'Site number ' + $scope.sites.length, reg : {colour: 'red'}, player : {colour: 'red'}});
+  }
+  
+  $scope.changeName = function() {
+	$scope.sites[1].reg.colour = "green";  
+  }
+  
+  //simulate being called my Pahoe with a message for this device
+  function onMessageArrived(msg) {
+	  console.log("IoTBoard : processing incoming message");
+	  var site = getExisting(msg);
+	  if(!site) {
+		  //this is a new site and so add it to the board display
+		  site = {sid: msg.sid, gid : msg.gid, name : msg.name, reg : {colour: 'red'}, player : {colour: 'red'}};
+		  $scope.sites.push(site);
+	  }
+	  if(msg.data.light == 'reg') {
+		  site.reg.colour = msg.data.status ? 'green' : 'red';
+	  }
+	  if(msg.data.light == 'player') {
+		  site.player.colour = msg.data.status ? 'green' : 'red';
+	  }
+	  $scope.$apply();
+  }
+  
+  function getExisting(site) {
+	  for(var i = 0; i < $scope.sites.length; i++) {
+		  if($scope.sites[i].name = site.name) {
+			  return $scope.sites[i];
+		  }
+	  }
+	  return undefined;
+  }
+  
+  //setup a simulated event for receiving 
+  setTimeout(onMessageArrived, 3000, {sid: '123456789', name: 'A new Room', gid: 'git:1234567', data : {light : 'reg', status: true}});
+  setTimeout(onMessageArrived, 5000, {sid: '123456789', name: 'A new Room', gid: 'git:1234567', data : {light : 'player', status: true}});
+  setTimeout(onMessageArrived, 7000, {sid: '123456789', name: 'A new Room', gid: 'git:1234567', data : {light : 'player', status: false}});
 }]);
