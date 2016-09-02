@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
@@ -16,17 +17,18 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.Provider;
 
+@ApplicationScoped
 @Provider
 @Consumes(MediaType.APPLICATION_JSON)
-public class RegistrationResponseReader implements MessageBodyReader<RegistrationResponse> {
+public class RegistrationResponseReader implements MessageBodyReader<IoTRegistrationResponse> {
 
     @Override
     public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-        return type.equals(RegistrationResponse.class);
+        return type.equals(IoTRegistrationResponse.class);
     }
 
     @Override
-    public RegistrationResponse readFrom(Class<RegistrationResponse> type, Type genericType, Annotation[] annotations,
+    public IoTRegistrationResponse readFrom(Class<IoTRegistrationResponse> type, Type genericType, Annotation[] annotations,
             MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
             throws IOException, WebApplicationException {
         JsonReader rdr = null; 
@@ -37,7 +39,7 @@ public class RegistrationResponseReader implements MessageBodyReader<Registratio
              JsonString typeId = attendeeJson.getJsonString("typeId");
              JsonString deviceId = attendeeJson.getJsonString("deviceId");
              JsonString clientId = attendeeJson.getJsonString("clientId");
-             RegistrationResponse attendee = new RegistrationResponse();
+             IoTRegistrationResponse attendee = new IoTRegistrationResponse();
              attendee.setAuthToken(authToken.getString());
              attendee.setClientId(clientId.getString());
              attendee.setDeviceId(deviceId.getString());

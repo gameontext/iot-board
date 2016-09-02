@@ -18,10 +18,13 @@ package org.gameontext.iotboard.provider.virtual;
 import java.net.HttpURLConnection;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -46,9 +49,9 @@ public class VirtualDeviceControlEndpoint {
     @POST
     @Path("test")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response check() throws MqttException {
-        provider.trigger();
-        return Response.ok().build();
+    public Response check(String deviceToHit) throws MqttException {
+        provider.trigger(deviceToHit);
+        return Response.ok(deviceToHit).build();
     }
     
 	/**
@@ -63,8 +66,9 @@ public class VirtualDeviceControlEndpoint {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerDevice(
-            @ApiParam(value = "Details of registering device", required = true) DeviceRegistration registration) {
+            @ApiParam(value = "Details of registering device", required = true) DeviceRegistration registration, @Context HttpServletRequest request) {
 
+        HttpSession session = request.getSession();
         System.out.println("Registering device: " + registration.getDeviceId());
         DeviceRegistrationResponse drr = provider.registerDevice(registration);
         return Response.ok(drr).build();

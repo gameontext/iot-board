@@ -1,6 +1,6 @@
 package org.gameontext.iotboard.provider.virtual;
 
-public class RegistrationResponse {
+public class IoTRegistrationResponse {
     private String clientId;
     private String typeId;
     private String deviceId;
