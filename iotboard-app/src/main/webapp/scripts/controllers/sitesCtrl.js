@@ -24,7 +24,7 @@ angular.module('iotBoardApp')
   $scope.sites = [];
   
   $scope.gid = ""; 	//Game On! id to register device for
-  $scope.iotf = {};	//IoT foundation configuration
+  $scope.iotf = {con : { colour : 'yellow'}, sub : { colour : 'yellow'}, rcv : { colour : 'yellow'}};	//IoT foundation configuration
   $scope.iotfClient = {};	//IoT foundation client connection
   
   $scope.registerDevice = function() {
@@ -52,7 +52,9 @@ angular.module('iotBoardApp')
    		}
 	 );
   }
-  
+//***************************************************************************************
+// Test functions to be removed
+//***************************************************************************************
   $scope.addSite = function() {
 	  $scope.sites.push({sid:'Site number ' + $scope.sites.length, reg : {colour: 'red'}, player : {colour: 'red'}});
   }
@@ -89,23 +91,49 @@ angular.module('iotBoardApp')
 		 );
   }
   
+  $scope.testReceiveMessage = function() {
+	  //setup a simulated event for receiving 
+	  var event = {};
+	  var d = {d: {sid: '123456789', name: 'A new Room', gid: 'git:1234567', data : {light : 'reg', status: true}}};
+	  event.payloadString = JSON.stringify(d);
+	  setTimeout(onMessageArrived, 3000, event);
+	  event = {};
+	  d = {d: {sid: '123456789', name: 'A new Room', gid: 'git:1234567', data : {light : 'player', status: true}}};
+	  event.payloadString = JSON.stringify(d);
+	  setTimeout(onMessageArrived, 5000, event);
+	  event = {};
+	  d = {d: {sid: '123456789', name: 'A new Room', gid: 'git:1234567', data : {light : 'player', status: false}}};
+	  event.payloadString = JSON.stringify(d);
+	  setTimeout(onMessageArrived, 7000, event);
+  }
+//*********************************************************************************************
+  
 	function onConnectSuccess() {
 		// The device connected successfully
 		console.log("Connected Successfully!");
 		$scope.iotfClient.subscribe($scope.iotf.cmdTopic, {onSuccess: onSubscribeSuccess, onFailure: onSubscribeFailure});
+		$scope.iotf.con.colour =  'green';
+		$scope.iotf.msg = "Connected to IBM Watson IoT Platform!"
+		$scope.$apply();
 	}
 	
 	function onSubscribeSuccess() {
-		console.log("Subscribed successfully");
 		$scope.iotfClient.onMessageArrived = onMessageArrived;
+		$scope.iotf.sub.colour =  'green';
+		$scope.iotf.msg = "Subscribed successfully to IBM Watson IoT Platform!"
+		$scope.$apply();
 	}
 	
 	function onSubscribeFailure() {
-		console.log("Failed to subscribe");
+		$scope.iotf.sub.colour =  'red';
+		$scope.iotf.alert = "Failed to subscribe to event messages!"
+		$scope.$apply();
 	}
 
 	function onConnectFailure() {
-		console.log("IoTBoard : Could not connect to IBM Watson IoT Platform!");
+		$scope.iotf.con.colour =  'red';
+		$scope.iotf.alert = "Could not connect to IBM Watson IoT Platform!"
+		$scope.$apply();
 	}
 
 	function connectDevice() {
@@ -119,10 +147,12 @@ angular.module('iotBoardApp')
 	}
 	
 	function onConnectionLost(responseObject) {
-		  if (responseObject.errorCode !== 0) {
-		    console.log("onConnectionLost:"+responseObject.errorMessage);
-		  }
+		if (responseObject.errorCode !== 0) {
+			$scope.iotf.con.colour =  'red';
+			$scope.iotf.alert = "Connection lost to IBM Watson IoT Platform! " + responseObject.errorMessage; 
+			$scope.$apply();
 		}
+	}
   
   
   function onMessageArrived(event) {
@@ -153,8 +183,5 @@ angular.module('iotBoardApp')
 	  return undefined;
   }
   
-  //setup a simulated event for receiving 
-  //setTimeout(onMessageArrived, 3000, {sid: '123456789', name: 'A new Room', gid: 'git:1234567', data : {light : 'reg', status: true}});
-  //setTimeout(onMessageArrived, 5000, {sid: '123456789', name: 'A new Room', gid: 'git:1234567', data : {light : 'player', status: true}});
-  //setTimeout(onMessageArrived, 7000, {sid: '123456789', name: 'A new Room', gid: 'git:1234567', data : {light : 'player', status: false}});
+
 }]);

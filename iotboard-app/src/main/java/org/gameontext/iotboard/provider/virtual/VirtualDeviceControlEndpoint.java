@@ -49,6 +49,7 @@ public class VirtualDeviceControlEndpoint {
     @POST
     @Path("test")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response check(String deviceToHit) throws MqttException {
         provider.trigger(deviceToHit);
         return Response.ok(deviceToHit).build();

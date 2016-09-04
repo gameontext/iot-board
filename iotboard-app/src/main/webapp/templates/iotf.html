@@ -1,0 +1,48 @@
+<!-- Template for IoT foundation information -->
+
+<div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title">IoT Foundation Information</h3>
+		</div>
+		<div class="panel-body">
+			<div>
+				<h5>Connection Status</h5>
+				<svg height="30" width="100">
+					<g>	
+						<circle r="5" stroke="black" stroke-width="1" fill="{{iotf.con.colour}}" cx="10" cy="10"/>
+						<circle r="5" stroke="black" stroke-width="1" fill="{{iotf.sub.colour}}" cx="30" cy="10"/>
+						<circle r="5" stroke="black" stroke-width="1" fill="{{iotf.rcv.colour}}" cx="50" cy="10"/>
+					</g>
+				</svg>
+				<div ng-show="iotf.alert" class="alert alert-danger" role="alert">
+		        	{{iotf.alert}}
+		      	</div>
+		      	<div ng-show="iotf.msg" class="alert alert-success" role="alert">
+		        	{{iotf.msg}}
+		      	</div>
+			</div>
+		</div>
+	</div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        	<h3 class="panel-title">IoT Foundation Information</h3>
+      </div>
+      <div class="panel-body">
+ 		<label for="iotfHost">Host</label>
+	    <input class="u-full-width" type="text" name="iotfHost" id="iotfHost" ng-model="iotf.iot_host" placeholder="IoT foundation host" /><br/>
+	    <label for="iotfPort">Port</label>
+	    <input class="u-full-width" type="text" name="iotfPort" id="iotfPort" ng-model="iotf.iot_port" placeholder="IoT foundation port" /><br/>
+	    <label for="iotfPassword">Password</label>
+	    <input class="u-full-width" type="password" name="iotfPassword" id="iotfPassword" ng-model="iotf.password" placeholder="password" /><br/>
+	    <label for="iotfClientId">Client ID</label>
+	    <input class="u-full-width" type="text" name="iotfClientId" id="iotfClientId" ng-model="iotf.iot_clientid" placeholder="client ID" /><br/>
+	    <label for="iotfDeviceId">Device ID</label>
+	    <input class="u-full-width" type="text" name="iotfDeviceId" id="iotfDeviceId" ng-model="iotf.deviceid" placeholder="device ID" /><br/>
+	    <label for="iotfEventTopic">Event Topic</label>
+	    <input class="u-full-width" type="text" name="iotfEventTopic" id="iotfEventTopic" ng-model="iotf.eventTopic" placeholder="event topic" /><br/>
+	    <label for="iotfCmdTopic">Command Topic</label>
+	    <input class="u-full-width" type="text" name="iotfCmdTopic" id="iotfCmdTopic" ng-model="iotf.cmdTopic" placeholder="command topic" /><br/>
+      </div>
+    </div>
+</div>
