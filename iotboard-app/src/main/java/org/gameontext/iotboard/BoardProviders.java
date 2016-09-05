@@ -47,17 +47,21 @@ public class BoardProviders {
     
     //TODO make thread safe and lock access to the sites under this registration
     public void deleteRegistration(BoardProvider provider) {
-        providers.remove(provider.getProviderId());
+        providers.remove(provider.getSupportedDeviceType());
     }
     
     //add a new site registration or update an existing one
     public void addRegistration(BoardProvider provider) {
-        providers.putIfAbsent(provider.getProviderId(), provider);
+        providers.putIfAbsent(provider.getSupportedDeviceType(), provider);
+    }
+    
+    public BoardProvider getProvider(String deviceType) {
+        return providers.get(deviceType);
     }
     
     @PostConstruct
     public void init() {
         //pre-load with a virtual board services
-        providers.put(vbp.getProviderId(), vbp);
+        addRegistration(vbp);
     }
 }

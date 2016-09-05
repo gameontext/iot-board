@@ -15,7 +15,9 @@
  *******************************************************************************/
 package org.gameontext.iotboard.provider;
 
+import org.gameontext.iotboard.models.DeviceRegistrationRequest;
 import org.gameontext.iotboard.models.devices.BoardControl;
+import org.gameontext.iotboard.provider.virtual.DeviceRegistrationResponse;
 
 /**
  * Implemented by board providers
@@ -36,4 +38,8 @@ public interface BoardProvider {
      * @param msg control message to process
      */
     public void process(BoardControl msg);
+
+    public String getSupportedDeviceType();
+
+    public DeviceRegistrationResponse registerDevice(DeviceRegistrationRequest registration);
 }

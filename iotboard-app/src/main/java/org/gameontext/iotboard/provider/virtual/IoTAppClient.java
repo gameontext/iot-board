@@ -34,11 +34,11 @@ public class IoTAppClient {
         }
     }
 
-    public void sendCommand(String deviceId, String commandId, Object event) {
+    public void sendCommand(String deviceType, String deviceId, String commandId, Object event) {
         try {
             appclient.connect(1);
             System.out.println("Publishing as " + deviceId);
-            System.out.println("Did it deliver? " + appclient.publishCommand("vdev", deviceId, commandId, event));
+            System.out.println("Did it deliver? " + appclient.publishCommand(deviceType, deviceId, commandId, event));
             appclient.disconnect();
         } catch (MqttException e) {
             e.printStackTrace();

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package org.gameontext.iotboard.provider.virtual;
+package org.gameontext.iotboard;
 
 import java.net.HttpURLConnection;
 
@@ -28,8 +28,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.gameontext.iotboard.models.DeviceRegistration;
+import org.gameontext.iotboard.models.DeviceRegistrationRequest;
+import org.gameontext.iotboard.provider.BoardProvider;
+import org.gameontext.iotboard.provider.virtual.DeviceRegistrationResponse;
+import org.gameontext.iotboard.provider.virtual.VirtualBoardProvider;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -41,30 +43,15 @@ import io.swagger.annotations.ApiParam;
 @Path("/devices")
 @Api( tags = {"iotboard"})
 @Produces(MediaType.APPLICATION_JSON)
-public class VirtualDeviceControlEndpoint {
+public class DeviceControlEndpoint {
 
+//    @Inject
+//    protected VirtualBoardProvider provider;
+    
     @Inject
-    protected VirtualBoardProvider provider;
+    protected BoardProviders providers;
 
-    @POST
-    @Path("test")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response check(String deviceToHit) throws MqttException {
-        provider.trigger(deviceToHit);
-        return Response.noContent().build();
-    }
-    
-    
-
-    @POST
-    @Path("testplayer")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response triggerPlayer(String playerId) throws MqttException {
-        provider.triggerEventToPlayer(playerId);
-        return Response.noContent().build();
-    }
-    
-	/**
+    /**
      * POST /iotboard/v1/control
      * @throws JsonProcessingException
      */
@@ -76,10 +63,12 @@ public class VirtualDeviceControlEndpoint {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerDevice(
-            @ApiParam(value = "Details of registering device", required = true) DeviceRegistration registration, @Context HttpServletRequest request) {
+            @ApiParam(value = "Details of registering device", required = true) DeviceRegistrationRequest registration, @Context HttpServletRequest request) {
 
-        HttpSession session = request.getSession();
+        int returnedStatus = 200;
+        
         System.out.println("Registering device: " + registration.getDeviceId());
+        BoardProvider provider = providers.getProvider(registration.getDeviceType());
         DeviceRegistrationResponse drr = provider.registerDevice(registration);
         if (drr.hasViolations()) {
             return Response.status(400).entity(drr).build();
