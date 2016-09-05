@@ -14,17 +14,21 @@
  * limitations under the License.
  *******************************************************************************/
 
+//control the LEDs on a virtual board
+
 'use strict';
 
 angular.module('iotBoardApp')
-.controller('sitesCtrl', ['$scope', '$http', function($scope, $http) {
+.controller('ledCtrl', ['$scope', '$http', function($scope, $http) {
 
-  console.log("IoTBoard : using controller 'sitesCtrl'");
+  console.log("LEDBoard : using controller 'ledCtrl'");
   
-  $scope.sites = [];
+  //10 LED lights on the board
+  $scope.leds = [{status:'red'}, {status:'red'}, {status:'red'}, {status:'red'}, {status:'red'}
+  				,{status:'red'}, {status:'red'}, {status:'red'}, {status:'red'}, {status:'red'}];
   
-  $scope.gid = ""; 	//Game On! id to register device for
-  $scope.iotf = {con : { colour : 'yellow'}, sub : { colour : 'yellow'}, rcv : { colour : 'yellow'}};	//IoT foundation configuration
+  $scope.deviceId = ""; 	//id to register device for
+  
   $scope.iotfClient = {};	//IoT foundation client connection
   
   $scope.registerDevice = function() {
@@ -32,10 +36,10 @@ angular.module('iotBoardApp')
 	 $http({
 	     url: "/iotboard/v1/devices",
 	     method: "POST",
-	     headers: {  'gameon-id': $scope.gid,
+	     headers: {  
 	                 'contentType': 'application/json; charset=utf-8"', //what is being sent to the server
 	     },
-	     data: JSON.stringify({deviceType: 'VirtualBoard', playerId: $scope.gid}).trim()
+	     data: JSON.stringify({deviceType: 'VirtualLEDBoard', deviceId: $scope.deviceId}).trim()
 	   }).then(function (response) {
 		    console.log('Device registration successful : response from server : ' + response.status);
 		    $scope.iotf.iot_host = response.data.iotMessagingOrgAndHost;
@@ -114,15 +118,15 @@ angular.module('iotBoardApp')
   $scope.testReceiveMessage = function() {
 	  //setup a simulated event for receiving 
 	  var event = {};
-	  var d = {d: {sid: '123456789', name: 'A new Room', gid: 'git:1234567', data : {light : 'reg', status: true}}};
+	  var d = {d: {led: 2, status: true}};
 	  event.payloadString = JSON.stringify(d);
 	  setTimeout(onMessageArrived, 3000, event);
 	  event = {};
-	  d = {d: {sid: '123456789', name: 'A new Room', gid: 'git:1234567', data : {light : 'player', status: true}}};
+	  d = {d: {led: 2, status: false}};
 	  event.payloadString = JSON.stringify(d);
 	  setTimeout(onMessageArrived, 5000, event);
 	  event = {};
-	  d = {d: {sid: '123456789', name: 'A new Room', gid: 'git:1234567', data : {light : 'player', status: false}}};
+	  d = {d: {led: 5, status: true}};
 	  event.payloadString = JSON.stringify(d);
 	  setTimeout(onMessageArrived, 7000, event);
   }
@@ -178,29 +182,9 @@ angular.module('iotBoardApp')
   function onMessageArrived(event) {
 	  var payload = JSON.parse(event.payloadString);
 	  var msg = payload.d;
-	  console.log("IoTBoard : processing incoming message : " + JSON.stringify(msg));
-	  var site = getExisting(msg);
-	  if(!site) {
-		  //this is a new site and so add it to the board display
-		  site = {sid: msg.sid, gid : msg.gid, name : msg.name, reg : {colour: 'red'}, player : {colour: 'red'}};
-		  $scope.sites.push(site);
-	  }
-	  if(msg.data.light == 'reg') {
-		  site.reg.colour = msg.data.status ? 'green' : 'red';
-	  }
-	  if(msg.data.light == 'player') {
-		  site.player.colour = msg.data.status ? 'green' : 'red';
-	  }
+	  console.log("LEDBoard : processing incoming message : " + JSON.stringify(msg));
+	  $scope.leds[msg.led].status = msg.status ? 'green' : 'red';
 	  $scope.$apply();
-  }
-  
-  function getExisting(site) {
-	  for(var i = 0; i < $scope.sites.length; i++) {
-		  if($scope.sites[i].name = site.name) {
-			  return $scope.sites[i];
-		  }
-	  }
-	  return undefined;
   }
   
 
