@@ -1,10 +1,14 @@
 package org.gameontext.iotboard.provider.virtual;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class IoTRegistrationResponse {
     private String clientId;
     private String typeId;
     private String deviceId;
     private String authToken;
+    private List<String> violations = new ArrayList<String>();
     
     @Override
     public String toString() {
@@ -34,6 +38,16 @@ public class IoTRegistrationResponse {
     }
     public void setAuthToken(String authToken) {
         this.authToken = authToken;
+    }
+    public void addViolation(String message) {
+        violations.add(message);
+        
+    }
+    public boolean hasViolations() {
+        return violations.size() > 0;
+    }
+    public List<String> getViolations() {
+        return violations;
     }
     
 

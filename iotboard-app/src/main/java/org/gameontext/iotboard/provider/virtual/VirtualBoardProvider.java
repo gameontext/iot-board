@@ -37,15 +37,13 @@ import com.google.gson.JsonObject;
 @ApplicationScoped
 public class VirtualBoardProvider implements BoardProvider {
 
-    Map<String, Device> devices = new HashMap<String, Device>();
+    Map<String, Devices> devicesByPlayer = new HashMap<String, Devices>();
     
     @Inject
     IoTConfiguration iotConfig;
     
     @Inject
     IoTAppClient appClient;
-    
-    String deviceId  = null;
     
     @Override
     public String getProviderId() {
@@ -59,20 +57,22 @@ public class VirtualBoardProvider implements BoardProvider {
 
     public DeviceRegistrationResponse registerDevice(DeviceRegistration registration) {
         String deviceId = getOrCreateDeviceId(registration);
-
-        Device device = devices.get(deviceId);
-        if (device == null) {
-            device = new Device();
+        
+        Devices devices = devicesByPlayer.get(registration.getPlayerId());
+        if (devices == null) {
+            devices = new Devices();
+            devicesByPlayer.put(registration.getPlayerId(), devices);
         }
 
-        String associatedPlayer = device.getAssociatedPlayer();
-        if (associatedPlayer != null && !associatedPlayer.equals(registration.getPlayerId())) {
-            throw new RuntimeException("Cannot reassign a device");
+        IoTRegistrationResponse rr = registerIntoIoTF(registration);
+        
+        DeviceRegistrationResponse drr = new DeviceRegistrationResponse();
+
+        if (rr.hasViolations())  {
+            drr.setViolations(rr.getViolations());
+            return drr;
         }
         
-        IoTRegistrationResponse rr = registerIntoIoTF(registration);
-
-        DeviceRegistrationResponse drr = new DeviceRegistrationResponse();
         
         drr.setIotMessagingOrgAndHost(iotConfig.getiotMessagingOrgAndHost());
         drr.setIotMessagingPort(iotConfig.getIotMessagingPort());
@@ -82,7 +82,7 @@ public class VirtualBoardProvider implements BoardProvider {
         drr.setEventTopic("iot-2/type/"+ rr.getTypeId() +"/id/"+ rr.getDeviceId() + "/evt/+/fmt/json");
         drr.setCmdTopic("iot-2/cmd/+/fmt/json");
            
-        this.deviceId = drr.getDeviceId();
+        devices.add(drr.getDeviceId());
         return drr;
     }
 
@@ -91,7 +91,6 @@ public class VirtualBoardProvider implements BoardProvider {
         
         WebTarget target = client.target(iotConfig.deviceRegistartionUrl());
         Builder requestBuilder = target.request();
-//        requestBuilder.header("Content-Type", "application/json");
         
         requestBuilder.header("Authorization", iotConfig.getAuthHeader());
         System.out.println("Registering device with ID " + registration.getDeviceId());
@@ -136,5 +135,59 @@ public class VirtualBoardProvider implements BoardProvider {
         appClient.sendCommand(deviceToHit, "updates", event);
 
     }
+    
+    
+    public void triggerEventToPlayer(String playerid) {
+        Devices devices = devicesByPlayer.get(playerid);
+        if (devices != null) {
+            System.out.println("Triggering");
+            JsonObject event = new JsonObject();
+            event.addProperty("sid", "123456789");
+            event.addProperty("name", "123456789");
+            event.addProperty("gid", "123456789");
+            for (String deviceid : devices.getDevices()) {
+                JsonObject registrationLightOn = new JsonObject();
+                registrationLightOn.addProperty("light", "reg");
+                registrationLightOn.addProperty("status", true);
+                event.add("data", registrationLightOn);
+                System.out.println("JSON: " + event);
+                appClient.sendCommand(deviceid, "updates", event);
+                event.remove("data");
+            }
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            for (String deviceid : devices.getDevices()) {
+                JsonObject playerLightOn = new JsonObject();
+                playerLightOn.addProperty("light", "player");
+                playerLightOn.addProperty("status", true);
+                event.add("data", playerLightOn);
+                System.out.println("JSON: " + event);
+                appClient.sendCommand(deviceid, "updates", event);
+                event.remove("data");
+            }
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            for (String deviceid : devices.getDevices()) {
+                
+                JsonObject playerLightOff = new JsonObject();
+                playerLightOff.addProperty("light", "player");
+                playerLightOff.addProperty("status", false);
+                event.add("data", playerLightOff);
+                System.out.println("JSON: " + event);
+                appClient.sendCommand(deviceid, "updates", event);
+                event.remove("data");
+                
+                
+            }
+        }
+    }
+    
+    
 
 }

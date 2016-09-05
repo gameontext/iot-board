@@ -49,10 +49,19 @@ public class VirtualDeviceControlEndpoint {
     @POST
     @Path("test")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
     public Response check(String deviceToHit) throws MqttException {
         provider.trigger(deviceToHit);
-        return Response.ok(deviceToHit).build();
+        return Response.noContent().build();
+    }
+    
+    
+
+    @POST
+    @Path("testplayer")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response triggerPlayer(String playerId) throws MqttException {
+        provider.triggerEventToPlayer(playerId);
+        return Response.noContent().build();
     }
     
 	/**
@@ -72,6 +81,9 @@ public class VirtualDeviceControlEndpoint {
         HttpSession session = request.getSession();
         System.out.println("Registering device: " + registration.getDeviceId());
         DeviceRegistrationResponse drr = provider.registerDevice(registration);
+        if (drr.hasViolations()) {
+            return Response.status(400).entity(drr).build();
+        }
         return Response.ok(drr).build();
     }
 }

@@ -1,5 +1,7 @@
 package org.gameontext.iotboard.provider.virtual;
 
+import java.util.List;
+
 public class DeviceRegistrationResponse {
     private String iotMessagingOrgAndHost; //"pmoxqf" + ".messaging.internetofthings.ibmcloud.com";
     private int iotMessagingPort; // 1883;
@@ -8,6 +10,7 @@ public class DeviceRegistrationResponse {
     private String iotClientId; //"d:"+"pmoxqf"+":iot-phone:"+window.deviceId;
     private String eventTopic;
     private String cmdTopic;
+    private List<String> violations;
     
     public String getIotMessagingOrgAndHost() {
         return iotMessagingOrgAndHost;
@@ -50,5 +53,16 @@ public class DeviceRegistrationResponse {
     }
     public void setCmdTopic(String cmdTopic) {
         this.cmdTopic = cmdTopic;
+    }
+    public void setViolations(List<String> violations) {
+        this.violations = violations;
+        
+    }
+    public boolean hasViolations() {
+        return this.violations != null && this.violations.size() > 0;
+    }
+    
+    public List<String> getViolations() {
+        return this.violations;
     }
 }

@@ -35,20 +35,22 @@ angular.module('iotBoardApp')
 	     headers: {  'gameon-id': $scope.gid,
 	                 'contentType': 'application/json; charset=utf-8"', //what is being sent to the server
 	     },
-	     data: JSON.stringify({deviceId: $scope.gid}).trim()
+	     data: JSON.stringify({playerId: $scope.gid}).trim()
 	   }).then(function (response) {
 		    console.log('Device registration successful : response from server : ' + response.status);
-		    $scope.iotf.iot_host = responseObject.iotMessagingOrgAndHost;
-		    $scope.iotf.iot_port = responseObject.iotMessagingPort;
-		    $scope.iotf.deviceId = responseObject.deviceId;
-		    $scope.iotf.password = responseObject.deviceAuthToken;
-		    $scope.iotf.iot_clientid = responseObject.iotClientId;
-		    $scope.iotf.eventTopic = responseObject.eventTopic;
-		    $scope.iotf.cmdTopic = responseObject.cmdTopic;
+		    $scope.iotf.iot_host = response.data.iotMessagingOrgAndHost;
+		    $scope.iotf.iot_port = response.data.iotMessagingPort;
+		    $scope.iotf.deviceId = response.data.deviceId;
+		    $scope.iotf.password = response.data.deviceAuthToken;
+		    $scope.iotf.iot_clientid = response.data.iotClientId;
+		    $scope.iotf.eventTopic = response.data.eventTopic;
+		    $scope.iotf.cmdTopic = response.data.cmdTopic;
 		    console.log("IoTBoard : config : " + JSON.stringify($scope.iotf));
-		    $scope.iotfClient = new Paho.MQTT.Client($scope.iot.iot_host, $scope.iot.iot_port, $scope.iot.iot_clientid);
+		    $scope.iotfClient = new Paho.MQTT.Client($scope.iotf.iot_host, $scope.iotf.iot_port, $scope.iotf.iot_clientid);
+			$scope.iotfClient.onConnectionLost = onConnectionLost;
+			connectDevice();
    		}, function (response) {
-   			alert('Device registration failed : response from server : ' + response.data + ':' + response.status);
+   			alert('Device registration failed : response from server : ' + response.data + ':' + response.status + "violations " + response.data.violations);
    		}
 	 );
   }
@@ -82,7 +84,7 @@ angular.module('iotBoardApp')
 		     headers: {  'gameon-id': $scope.gid,
 		                 'contentType': 'application/json; charset=utf-8"', //what is being sent to the server
 		     },
-		     data: "adamTest"
+		     data: $scope.iotf.deviceId
 		   }).then(function (response) {
 			    console.log('Command completed successfully');
 	   		}, function (response) {
@@ -90,6 +92,24 @@ angular.module('iotBoardApp')
 	   		}
 		 );
   }
+  
+  $scope.testTriggerplayer = function() { 
+		 console.log("Telling the server to send a command ");
+		 $http({
+		     url: "/iotboard/v1/devices/testplayer",
+		     method: "POST",
+		     headers: {  'gameon-id': $scope.gid,
+		                 'contentType': 'application/json; charset=utf-8"', //what is being sent to the server
+		     },
+		     data: $scope.gid
+		   }).then(function (response) {
+			    console.log('Command completed successfully');
+	   		}, function (response) {
+	   			alert('Command failed: ' + response.data + ':' + response.status);
+	   		}
+		 );
+}
+
   
   $scope.testReceiveMessage = function() {
 	  //setup a simulated event for receiving 

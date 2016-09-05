@@ -3,10 +3,14 @@ package org.gameontext.iotboard.models;
 public class DeviceRegistration {
 
     private String deviceId;
+    private String playerId;
 
     public String getPlayerId() {
-        // TODO Auto-generated method stub
-        return null;
+        return playerId;
+    }
+    
+    public void setPlayerId(String playerid) {
+        this.playerId = playerid;
     }
 
     public String getDeviceId() {

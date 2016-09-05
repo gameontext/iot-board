@@ -7,9 +7,13 @@ import java.lang.reflect.Type;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonString;
+import javax.json.JsonStructure;
+import javax.json.JsonValue;
+import javax.json.JsonValue.ValueType;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -34,22 +38,46 @@ public class RegistrationResponseReader implements MessageBodyReader<IoTRegistra
         JsonReader rdr = null; 
         try {
              rdr = Json.createReader(entityStream);
-             JsonObject attendeeJson = rdr.readObject();
-             JsonString authToken = attendeeJson.getJsonString("authToken");
-             JsonString typeId = attendeeJson.getJsonString("typeId");
-             JsonString deviceId = attendeeJson.getJsonString("deviceId");
-             JsonString clientId = attendeeJson.getJsonString("clientId");
-             IoTRegistrationResponse attendee = new IoTRegistrationResponse();
-             attendee.setAuthToken(authToken.getString());
-             attendee.setClientId(clientId.getString());
-             attendee.setDeviceId(deviceId.getString());
-             attendee.setTypeId(typeId.getString());
+             JsonStructure json = rdr.read();
+             ValueType mainType = json.getValueType();
+             
+             JsonObject returnedJson = (JsonObject) json;
+             
+             JsonArray violations = returnedJson.getJsonArray("violations");
+             
+             IoTRegistrationResponse attendee = processViolations(violations);
+             
+             JsonString authToken = returnedJson.getJsonString("authToken");
+             JsonString typeId = returnedJson.getJsonString("typeId");
+             JsonString deviceId = returnedJson.getJsonString("deviceId");
+             JsonString clientId = returnedJson.getJsonString("clientId");
+             attendee.setAuthToken(sanitiseNull(authToken));
+             attendee.setClientId(sanitiseNull(clientId));
+             attendee.setDeviceId(sanitiseNull(deviceId));
+             attendee.setTypeId(sanitiseNull(typeId));
+             
              return attendee;
         } finally {
             if (rdr != null) {
                 rdr.close();
             }
         }
+    }
+
+    private String sanitiseNull(JsonString authToken) {
+        return (authToken == null) ? null : authToken.getString();
+    }
+
+    private IoTRegistrationResponse processViolations(JsonArray violations) {
+        IoTRegistrationResponse response = new IoTRegistrationResponse();
+        if (violations != null) {
+            for (JsonValue jsonValue : violations) {
+                JsonObject violation = (JsonObject) jsonValue;
+                response.addViolation(violation.getString("message"));
+            }
+        }
+        return response;
+        
     }
 
 }
