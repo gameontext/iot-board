@@ -28,7 +28,12 @@ angular.module('iotBoardApp')
     templateUrl: 'templates/site.html',
     link: function(scope, elem, attr, sitesController) {
     	console.log("IoTBoard : linking site to page");
-    	console.log("IoTBoard : " + JSON.stringify(scope.sites));
+    	$("g[id^='player'").on("tap",function(){
+    		var id = $(this).attr("id");
+    		id = id.substr(id.indexOf(":") + 1);
+    		console.log("You clicked " + id + " origin " + $(this).attr("id"));
+    		scope.testButtonToggle(id);
+    	});
     },
   };
 });

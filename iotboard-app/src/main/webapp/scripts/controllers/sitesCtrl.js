@@ -68,17 +68,34 @@ angular.module('iotBoardApp')
   $scope.testReceiveMessage = function() {
 	  //setup a simulated event for receiving 
 	  var event = {};
-	  var d = {d: {sid: '123456789', name: 'A new Room', gid: 'git:1234567', data : {light : 'reg', status: true}}};
+	  var d = {d: {sid: 'Site number 0', name: 'A new Room', gid: 'git:1234567', data : {light : 'reg', status: true}}};
 	  event.payloadString = JSON.stringify(d);
 	  setTimeout(onMessageArrived, 3000, event);
 	  event = {};
-	  d = {d: {sid: '123456789', name: 'A new Room', gid: 'git:1234567', data : {light : 'player', status: true}}};
+	  d = {d: {sid: 'Site number 0', name: 'A new Room', gid: 'git:1234567', data : {light : 'player', status: true}}};
 	  event.payloadString = JSON.stringify(d);
 	  setTimeout(onMessageArrived, 5000, event);
 	  event = {};
-	  d = {d: {sid: '123456789', name: 'A new Room', gid: 'git:1234567', data : {light : 'player', status: false}}};
+	  d = {d: {sid: 'Site number 0', name: 'A new Room', gid: 'git:1234567', data : {light : 'player', status: false}}};
 	  event.payloadString = JSON.stringify(d);
 	  setTimeout(onMessageArrived, 7000, event);
+  }
+  
+  //test that a button can have it's colours toggled
+  $scope.testButtonToggle = function(sid) {
+	  console.log("IOTBoard : button toggle test for " + sid);
+	  for(var i = 0; i < $scope.sites.length; i++) {
+		  if($scope.sites[i].sid = sid) {
+			  var site = $scope.sites[i];
+			  var toggle = site.player.colour == 'red' ? true : false;
+			  var d = {d: {sid: site.sid, name: site.name, gid: site.gid, data : {light : 'player', status: toggle}}};
+			  var event = {};
+			  event.payloadString = JSON.stringify(d);
+			  onMessageArrived(event);
+			  return;
+		  }
+	  }
+	  console.log("IoTBoard : error could not find site to test with");
   }
 //*********************************************************************************************
   
@@ -133,9 +150,11 @@ angular.module('iotBoardApp')
 	  var payload = JSON.parse(event.payloadString);
 	  var msg = payload.d;
 	  console.log("IoTBoard : processing incoming message : " + JSON.stringify(msg));
+	  console.log("IoTBoard : sites " + JSON.stringify($scope.sites));
 	  var site = getExisting(msg);
 	  if(!site) {
 		  //this is a new site and so add it to the board display
+		  console.log("IoTBoard : creating new site");
 		  site = {sid: msg.sid, gid : msg.gid, name : msg.name, reg : {colour: 'red'}, player : {colour: 'red'}};
 		  $scope.sites.push(site);
 	  }
@@ -150,7 +169,7 @@ angular.module('iotBoardApp')
   
   function getExisting(site) {
 	  for(var i = 0; i < $scope.sites.length; i++) {
-		  if($scope.sites[i].name = site.name) {
+		  if($scope.sites[i].sid = site.sid) {
 			  return $scope.sites[i];
 		  }
 	  }
