@@ -64,7 +64,12 @@ public class DeviceControlEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerDevice(
             @ApiParam(value = "Details of registering device", required = true) DeviceRegistrationRequest registration, @Context HttpServletRequest request) {
-
+        
+        System.out.println("New device registration request: " + registration);
+        // Register Device
+        // Add subscription to the list
+        
+        
         int returnedStatus = 200;
         
         System.out.println("Registering device: " + registration.getDeviceId());

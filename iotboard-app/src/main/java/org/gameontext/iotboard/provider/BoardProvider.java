@@ -24,12 +24,6 @@ import org.gameontext.iotboard.provider.virtual.DeviceRegistrationResponse;
  *
  */
 public interface BoardProvider {
-    /**
-     * Unique ID for this provider
-     * 
-     * @return unique provider id
-     */
-    public String getProviderId();
     
     /**
      * Process a control message to set the status

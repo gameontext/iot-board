@@ -73,7 +73,7 @@ public class BoardControlEndpoint {
 
         StringBuilder builder = new StringBuilder("[");
         for(BoardProvider provider : providers.getProviders()) {
-            builder.append("{'name':'" + provider.getProviderId() + "'}\n");
+            builder.append("{'name':'" + provider.getSupportedDeviceType() + "'}\n");
         }
         builder.append("]");
         return Response.ok(builder.toString()).build();

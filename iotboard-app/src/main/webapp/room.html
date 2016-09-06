@@ -4,16 +4,16 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Game On! IoT Board</title>
+    <title>Game On! IoT LED Board</title>
     <meta name="description" content="">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="styles/main.css">
   </head>
-  <body ng-controller="sitesCtrl">
+  <body ng-controller="roomCtrl">
   <div class="jumbotron text-center">
-  	<h4>Game On! Dashboard</h4>
-  	<p>Integration with Game On! and IoT Foundation</p> 
+  	<h4>Room</h4>
+  	<p>A simulated GameOn room.</p> 
   </div>
   <div class="container">
   	<div class="row">
@@ -21,16 +21,21 @@
   		<div class="col-sm-6">
 			<div class="panel panel-default">
             	<div class="panel-heading">
-              		<h3 class="panel-title">Register device</h3>
+              		<h3 class="panel-title">Register room</h3>
             	</div>
             	<div class="panel-body">
-              		<label for="gid">Game On! Id</label>
-		      		<input class="u-full-width" type="text" name="gid" id="gid" ng-model="gid" placeholder="Enter your Game On! id e.g. github:1234567" />
+              		<label for="roomId">Room Id</label>
+		      		<input class="u-full-width" type="text" name="roomId" id="roomId" ng-model="roomId" placeholder="Enter the Room ID for this board" />
+		      		<label for="roomId">Device Id</label>
+		      		<input class="u-full-width" type="text" name="deviceId" id="deviceId" ng-model="deviceId" placeholder="Enter the device ID for this board" />
+		      		<label for="playerId">Player Id</label>
+		      		<input class="u-full-width" type="text" name="playerId" id="playerId" ng-model="playerId" placeholder="Enter the player ID for this board" />
 		      		<button type="button" class="btn btn-default" data-ng-click="registerDevice()">Register</button>
             	</div>
           	</div>
   			<div>
-	  			<site ng-repeat="site in sites" />
+	  			<input class="u-full-width" type="text" name="message" id="message" ng-model="message" placeholder="Enter the message for this board" />
+	  			<button type="button" class="btn btn-default" data-ng-click="sendMessage()">Send Message</button>
 	  		</div>
   		</div>
   		<!-- IoT Foundation column -->
@@ -39,20 +44,18 @@
   		</div>
   	</div>
   </div>
+  <hr />
+  <button type="button" class="btn btn-default" data-ng-click="testReceiveMessage()">Test receiving messages</button><br />
+  <button type="button" class="btn btn-default" data-ng-click="testConnect()">Test Connect</button><br />
   
- 	<hr />
- 	<button type="button" class="btn btn-default" data-ng-click="addSite()">Add Site</button>
- 	<button type="button" class="btn btn-default" data-ng-click="changeName()">Change Name</button>
- 	<button type="button" class="btn btn-default" data-ng-click="testReceiveMessage()">Test receiving messages</button>
-	  
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" type="text/javascript"></script>
     
-    <script src="scripts/app.js"></script>
-    <script src="scripts/controllers/sitesCtrl.js"></script>
-    <script src="scripts/directives/site.js"></script>
+	<script src="scripts/app.js"></script>
+    <script src="scripts/controllers/roomCtrl.js"></script>
+    <script src="scripts/directives/board.js"></script>
     <script src="scripts/directives/iotf.js"></script>
   </body>
 </html>

@@ -19,27 +19,23 @@
 'use strict';
 
 angular.module('iotBoardApp')
-.controller('ledCtrl', ['$scope', '$http', function($scope, $http) {
+.controller('roomCtrl', ['$scope', '$http', function($scope, $http) {
 
-  console.log("LEDBoard : using controller 'ledCtrl'");
-  
-  //10 LED lights on the board
-  $scope.leds = [{status:'red'}, {status:'red'}, {status:'red'}, {status:'red'}, {status:'red'}
-  				,{status:'red'}, {status:'red'}, {status:'red'}, {status:'red'}, {status:'red'}];
+  console.log("Room : using controller 'roomCtrl'");
   
   $scope.deviceId = ""; 	//id to register device for
   $scope.iotf = {con : { colour : 'yellow'}, sub : { colour : 'yellow'}, rcv : { colour : 'yellow'}};	//IoT foundation configuration
   $scope.iotfClient = {};	//IoT foundation client connection
   
   $scope.registerDevice = function() {
-	 console.log("Registering device for user " + $scope.gid);
+	 console.log("Registering device for room " + $scope.roomId);
 	 $http({
 	     url: "/iotboard/v1/devices",
 	     method: "POST",
 	     headers: {  
 	                 'contentType': 'application/json; charset=utf-8"', //what is being sent to the server
 	     },
-	     data: JSON.stringify({deviceType: 'VirtualLEDBoard', deviceId: $scope.deviceId}).trim()
+	     data: JSON.stringify({deviceType: 'GameOnRoom', deviceId: $scope.deviceId, roomId: $scope.roomId, playerId: $scope.playerId}).trim()
 	   }).then(function (response) {
 		    console.log('Device registration successful : response from server : ' + response.status);
 		    $scope.iotf.iot_host = response.data.iotMessagingOrgAndHost;
@@ -58,32 +54,11 @@ angular.module('iotBoardApp')
    		}
 	 );
   }
-//***************************************************************************************
-// Test functions to be removed
-//***************************************************************************************
-  $scope.addSite = function() {
-	  $scope.sites.push({sid:'Site number ' + $scope.sites.length, reg : {colour: 'red'}, player : {colour: 'red'}});
-  }
   
   $scope.changeName = function() {
 	$scope.sites[1].reg.colour = "green";  
   }
   
-  $scope.testReceiveMessage = function() {
-	  //setup a simulated event for receiving 
-	  var event = {};
-	  var d = {d: {led: 2, status: true}};
-	  event.payloadString = JSON.stringify(d);
-	  setTimeout(onMessageArrived, 3000, event);
-	  event = {};
-	  d = {d: {led: 2, status: false}};
-	  event.payloadString = JSON.stringify(d);
-	  setTimeout(onMessageArrived, 5000, event);
-	  event = {};
-	  d = {d: {led: 5, status: true}};
-	  event.payloadString = JSON.stringify(d);
-	  setTimeout(onMessageArrived, 7000, event);
-  }
 //*********************************************************************************************
   
 	function onConnectSuccess() {
@@ -136,9 +111,28 @@ angular.module('iotBoardApp')
   function onMessageArrived(event) {
 	  var payload = JSON.parse(event.payloadString);
 	  var msg = payload.d;
-	  console.log("LEDBoard : processing incoming message : " + JSON.stringify(msg));
+	  console.log("Room : processing incoming message : " + JSON.stringify(msg));
 	  $scope.leds[msg.led].status = msg.status ? 'green' : 'red';
 	  $scope.$apply();
+  }
+  
+  $scope.sendMessage = function() {
+	  console.log("Sending message");
+	  var payload = {
+        "d" : {
+               "id" : $scope.iotf.deviceId,
+               "test" : "Hello world"
+        }
+      }
+	  
+	  var message = new Paho.MQTT.Message(JSON.stringify(payload));
+	  message.destinationName = $scope.iotf.eventTopic;
+	  try {
+		  $scope.iotfClient.send(message);
+		  console.log("[%s] Published", new Date().getTime());
+	  } catch (err) {
+		  console.error(err);
+	  }
   }
   
 

@@ -65,52 +65,6 @@ angular.module('iotBoardApp')
 	$scope.sites[1].reg.colour = "green";  
   }
   
-  $scope.testConnect = function() { 
-	  $scope.iotf.iot_host = "pmoxqf.messaging.internetofthings.ibmcloud.com";
-	  $scope.iotf.iot_port = 1883;
-	  $scope.iotf.iot_clientid = "d:pmoxqf:vdev:adamTest";
-	  $scope.iotf.password = "";
-	  $scope.iotf.cmdTopic = "iot-2/cmd/+/fmt/json";
-      $scope.iotfClient = new Paho.MQTT.Client($scope.iotf.iot_host, $scope.iotf.iot_port, $scope.iotf.iot_clientid);
-	  $scope.iotfClient.onConnectionLost = onConnectionLost;
-	  connectDevice();
-  }
-  
-  $scope.testSendCommand = function() { 
-		 console.log("Telling the server to send a command ");
-		 $http({
-		     url: "/iotboard/v1/devices/test",
-		     method: "POST",
-		     headers: {  'gameon-id': $scope.gid,
-		                 'contentType': 'application/json; charset=utf-8"', //what is being sent to the server
-		     },
-		     data: $scope.iotf.deviceId
-		   }).then(function (response) {
-			    console.log('Command completed successfully');
-	   		}, function (response) {
-	   			alert('Command failed: ' + response.data + ':' + response.status);
-	   		}
-		 );
-  }
-  
-  $scope.testTriggerplayer = function() { 
-		 console.log("Telling the server to send a command ");
-		 $http({
-		     url: "/iotboard/v1/devices/testplayer",
-		     method: "POST",
-		     headers: {  'gameon-id': $scope.gid,
-		                 'contentType': 'application/json; charset=utf-8"', //what is being sent to the server
-		     },
-		     data: $scope.gid
-		   }).then(function (response) {
-			    console.log('Command completed successfully');
-	   		}, function (response) {
-	   			alert('Command failed: ' + response.data + ':' + response.status);
-	   		}
-		 );
-}
-
-  
   $scope.testReceiveMessage = function() {
 	  //setup a simulated event for receiving 
 	  var event = {};

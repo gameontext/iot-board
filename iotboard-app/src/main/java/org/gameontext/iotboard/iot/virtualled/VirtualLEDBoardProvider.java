@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package org.gameontext.iotboard.provider.virtual;
+package org.gameontext.iotboard.iot.virtualled;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,14 +28,22 @@ import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
+import org.gameontext.iotboard.iot.DeviceUtils;
 import org.gameontext.iotboard.models.DeviceRegistrationRequest;
 import org.gameontext.iotboard.models.devices.BoardControl;
 import org.gameontext.iotboard.provider.BoardProvider;
+import org.gameontext.iotboard.provider.virtual.DeviceRegistrationResponse;
+import org.gameontext.iotboard.provider.virtual.Devices;
+import org.gameontext.iotboard.provider.virtual.IoTAppClient;
+import org.gameontext.iotboard.provider.virtual.IoTConfiguration;
+import org.gameontext.iotboard.provider.virtual.IoTReg;
+import org.gameontext.iotboard.provider.virtual.IoTRegistrationResponse;
+import org.gameontext.iotboard.provider.virtual.RegistrationResponseReader;
 
 @ApplicationScoped
-public class VirtualBoardProvider implements BoardProvider {
+public class VirtualLEDBoardProvider implements BoardProvider {
     
-    private static final String supportedDeviceType = "VirtualBoard";
+    private static final String supportedDeviceType = "VirtualLEDBoard";
 
     Map<String, Devices> devicesByPlayer = new HashMap<String, Devices>();
     
@@ -51,7 +59,7 @@ public class VirtualBoardProvider implements BoardProvider {
     }
 
     public DeviceRegistrationResponse registerDevice(DeviceRegistrationRequest registration) {
-        String deviceId = getOrCreateDeviceId(registration);
+        DeviceUtils.assignDeviceId(registration);
         
         Devices devices = devicesByPlayer.get(registration.getPlayerId());
         if (devices == null) {
@@ -89,7 +97,7 @@ public class VirtualBoardProvider implements BoardProvider {
         requestBuilder.header("Authorization", iotConfig.getAuthHeader());
         System.out.println("Registering device with ID " + registration.getDeviceId());
         
-        IoTReg iotReg = new IoTReg(registration.getDeviceId(), generateAlphaNum());
+        IoTReg iotReg = new IoTReg(registration.getDeviceId(), DeviceUtils.generateAlphaNum());
         
         Response response = requestBuilder.post(Entity.json(iotReg));
         System.out.println("Got back: " + response.getStatus());
@@ -100,23 +108,10 @@ public class VirtualBoardProvider implements BoardProvider {
         return rr;
     }
 
-    private String getOrCreateDeviceId(DeviceRegistrationRequest registration) {
-        String deviceId = registration.getDeviceId();
-        if (deviceId == null) {
-            deviceId = generateAlphaNum();
-        }
-
-        registration.setDeviceId(deviceId);
-        return deviceId;
-    }
-    
-    private String generateAlphaNum() {
-        return UUID.randomUUID().toString().replaceAll("[^A-Za-z0-9]", "");
-    }
 
     @Override
     public String getSupportedDeviceType() {
-        return "VirtualBoard";
+        return supportedDeviceType;
     }
 
 }
