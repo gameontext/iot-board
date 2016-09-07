@@ -1,13 +1,16 @@
 package org.gameontext.iotboard.provider.virtual;
 
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.eclipse.paho.client.mqttv3.MqttException;
+import org.gameontext.iotboard.MessageStack;
 import org.gameontext.iotboard.iot.DeviceCallback;
 
 import com.ibm.iotf.client.app.ApplicationClient;
@@ -15,8 +18,19 @@ import com.ibm.iotf.client.app.ApplicationClient;
 @ApplicationScoped
 public class IoTAppClient {
 
+    
+    private final ScheduledExecutorService scheduler =
+            Executors.newScheduledThreadPool(1);
+    
+    @Inject
+    MessageStack messageStack;
+    
+    
     @Inject
     IoTConfiguration iotConfig;
+    
+    @Inject
+    DeviceCallback callback;
     
     private ApplicationClient appclient;
     
@@ -33,21 +47,26 @@ public class IoTAppClient {
             System.out.println("props: " + props);
             appclient = new ApplicationClient(props);
             appclient.connect(1);
-            appclient.setEventCallback(new DeviceCallback());
+            appclient.setEventCallback(callback);
             appclient.subscribeToDeviceEvents();
         } catch (Exception e) {
             e.printStackTrace();
         }
         System.out.println("Application client created");
+
+
+        scheduler.schedule(messageStack, 0, TimeUnit.NANOSECONDS);
     }
 
     @PreDestroy
     public void tearDown() {
+        messageStack.shutDown();
         appclient.disconnect();
     }
     
     public void sendCommand(String deviceType, String deviceId, String commandId, Object event) {
         System.out.println("Publishing as " + deviceId);
         System.out.println("Did it deliver? " + appclient.publishCommand(deviceType, deviceId, commandId, event));
+        System.out.println("Done");
     }
 }

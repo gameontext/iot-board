@@ -5,6 +5,7 @@ public class DeviceRegistrationRequest {
     private String deviceId;
     private String playerId;
     private String roomId;
+    private String siteId;
     private String deviceType;
 
     public String getPlayerId() {
@@ -42,6 +43,14 @@ public class DeviceRegistrationRequest {
 
     public void setRoomId(String roomId) {
         this.roomId = roomId;
+    }
+
+    public String getSiteId() {
+        return siteId;
+    }
+
+    public void setSiteId(String siteId) {
+        this.siteId = siteId;
     }
 
 }

@@ -1,6 +1,12 @@
 package org.gameontext.iotboard.iot;
 
+import java.io.ByteArrayInputStream;
 import java.util.UUID;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.JsonStructure;
 
 import org.gameontext.iotboard.models.DeviceRegistrationRequest;
 
@@ -23,6 +29,14 @@ public class DeviceUtils {
 
     public static String generateAlphaNum() {
         return UUID.randomUUID().toString().replaceAll("[^A-Za-z0-9]", "");
+    }
+    
+    public static JsonObject marshallData(String payload) {
+        ByteArrayInputStream bais = new ByteArrayInputStream (payload.getBytes());
+        JsonReader rdr = Json.createReader(bais);
+        JsonStructure json = rdr.read();
+        JsonObject data = ((JsonObject) json).getJsonObject("d");
+        return data;
     }
     
 }

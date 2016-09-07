@@ -26,6 +26,7 @@ angular.module('iotBoardApp')
   $scope.deviceId = ""; 	//id to register device for
   $scope.iotf = {con : { colour : 'yellow'}, sub : { colour : 'yellow'}, rcv : { colour : 'yellow'}};	//IoT foundation configuration
   $scope.iotfClient = {};	//IoT foundation client connection
+  $scope.lightState = { selected: true };
   
   $scope.registerDevice = function() {
 	 console.log("Registering device for room " + $scope.roomId);
@@ -35,7 +36,7 @@ angular.module('iotBoardApp')
 	     headers: {  
 	                 'contentType': 'application/json; charset=utf-8"', //what is being sent to the server
 	     },
-	     data: JSON.stringify({deviceType: 'GameOnRoom', deviceId: $scope.deviceId, roomId: $scope.roomId, playerId: $scope.playerId}).trim()
+	     data: JSON.stringify({deviceType: 'GameOnRoom', deviceId: $scope.deviceId, roomId: $scope.roomId, playerId: $scope.playerId, siteId: $scope.playerId + '_' + $scope.roomId}).trim()
 	   }).then(function (response) {
 		    console.log('Device registration successful : response from server : ' + response.status);
 		    $scope.iotf.iot_host = response.data.iotMessagingOrgAndHost;
@@ -112,7 +113,7 @@ angular.module('iotBoardApp')
 	  var payload = JSON.parse(event.payloadString);
 	  var msg = payload.d;
 	  console.log("Room : processing incoming message : " + JSON.stringify(msg));
-	  $scope.leds[msg.led].status = msg.status ? 'green' : 'red';
+	  $scope.lightState.selected = msg.data.lightState;
 	  $scope.$apply();
   }
   
@@ -121,7 +122,10 @@ angular.module('iotBoardApp')
 	  var payload = {
         "d" : {
                "id" : $scope.iotf.deviceId,
-               "test" : "Hello world"
+               "data": {
+            	  "lightId": $scope.lightId,
+                  "lightState": $scope.lightState.selected
+               }
         }
       }
 	  

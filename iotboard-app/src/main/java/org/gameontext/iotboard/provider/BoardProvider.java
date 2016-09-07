@@ -19,6 +19,8 @@ import org.gameontext.iotboard.models.DeviceRegistrationRequest;
 import org.gameontext.iotboard.models.devices.BoardControl;
 import org.gameontext.iotboard.provider.virtual.DeviceRegistrationResponse;
 
+import com.ibm.iotf.client.app.Event;
+
 /**
  * Implemented by board providers
  *
@@ -36,4 +38,8 @@ public interface BoardProvider {
     public String getSupportedDeviceType();
 
     public DeviceRegistrationResponse registerDevice(DeviceRegistrationRequest registration);
+
+    public DeviceRequest translateRequest(Event event);
+
+    public void handleRequest(DeviceRequest dr);
 }

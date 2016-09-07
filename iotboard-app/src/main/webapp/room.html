@@ -34,7 +34,10 @@
             	</div>
           	</div>
   			<div>
-	  			<input class="u-full-width" type="text" name="message" id="message" ng-model="message" placeholder="Enter the message for this board" />
+  			<label for="lightId">Light Id</label>
+  			<input class="u-full-width" type="text" name="lightId" id="lightId" ng-model="lightId" placeholder="Enter Light ID" />
+  			<label for="lightState">Light State</label>
+  			<input class="u-full-width" type="checkbox" name="lightState" id="lightState" ng-model="lightState.selected" />
 	  			<button type="button" class="btn btn-default" data-ng-click="sendMessage()">Send Message</button>
 	  		</div>
   		</div>

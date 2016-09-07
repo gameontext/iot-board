@@ -17,42 +17,35 @@ package org.gameontext.iotboard.iot.virtualled;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation.Builder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
 
+import org.gameontext.iotboard.MessageStack;
+import org.gameontext.iotboard.RegistrationUtils;
 import org.gameontext.iotboard.iot.DeviceUtils;
 import org.gameontext.iotboard.models.DeviceRegistrationRequest;
 import org.gameontext.iotboard.models.devices.BoardControl;
 import org.gameontext.iotboard.provider.BoardProvider;
+import org.gameontext.iotboard.provider.DeviceRequest;
 import org.gameontext.iotboard.provider.virtual.DeviceRegistrationResponse;
 import org.gameontext.iotboard.provider.virtual.Devices;
-import org.gameontext.iotboard.provider.virtual.IoTAppClient;
-import org.gameontext.iotboard.provider.virtual.IoTConfiguration;
-import org.gameontext.iotboard.provider.virtual.IoTReg;
-import org.gameontext.iotboard.provider.virtual.IoTRegistrationResponse;
-import org.gameontext.iotboard.provider.virtual.RegistrationResponseReader;
+
+import com.ibm.iotf.client.app.Event;
 
 @ApplicationScoped
 public class VirtualLEDBoardProvider implements BoardProvider {
     
+    @Inject
+    RegistrationUtils regUtils;
+    
+    @Inject
+    MessageStack messageStack;
+    
     private static final String supportedDeviceType = "VirtualLEDBoard";
 
-    Map<String, Devices> devicesByPlayer = new HashMap<String, Devices>();
-    
-    @Inject
-    IoTConfiguration iotConfig;
-    
-    @Inject
-    IoTAppClient appClient;
-    
+    Map<String, Devices> availableBoardsByDeviceId = new HashMap<String, Devices>();
+
     @Override
     public void process(BoardControl msg) {
         System.out.println("Processing control message : " + msg);
@@ -61,57 +54,39 @@ public class VirtualLEDBoardProvider implements BoardProvider {
     public DeviceRegistrationResponse registerDevice(DeviceRegistrationRequest registration) {
         DeviceUtils.assignDeviceId(registration);
         
-        Devices devices = devicesByPlayer.get(registration.getPlayerId());
+        Devices devices = availableBoardsByDeviceId.get(registration.getPlayerId());
         if (devices == null) {
             devices = new Devices();
-            devicesByPlayer.put(registration.getPlayerId(), devices);
+            availableBoardsByDeviceId.put(registration.getDeviceId(), devices);
         }
 
-        IoTRegistrationResponse rr = registerIntoIoTF(registration);
+        DeviceRegistrationResponse drr = regUtils.registerDevice(registration);
         
-        DeviceRegistrationResponse drr = new DeviceRegistrationResponse();
-
-        if (rr.hasViolations())  {
-            drr.setViolations(rr.getViolations());
-            return drr;
+        if (drr.hasReportedErrors()) {
+            availableBoardsByDeviceId.remove(drr.getDeviceId());
         }
-        
-        drr.setIotMessagingOrgAndHost(iotConfig.getiotMessagingOrgAndHost());
-        drr.setIotMessagingPort(iotConfig.getIotMessagingPort());
-        drr.setDeviceId(rr.getDeviceId());
-        drr.setDeviceAuthToken(rr.getAuthToken());
-        drr.setIotClientId(rr.getClientId());
-        drr.setEventTopic("iot-2/type/"+ rr.getTypeId() +"/id/"+ rr.getDeviceId() + "/evt/+/fmt/json");
-        drr.setCmdTopic("iot-2/cmd/+/fmt/json");
-           
-        devices.add(drr.getDeviceId()); 
         return drr;
     }
 
-    private IoTRegistrationResponse registerIntoIoTF(DeviceRegistrationRequest registration) {
-        Client client = ClientBuilder.newClient().register(RegistrationResponseReader.class);
-        
-        WebTarget target = client.target(iotConfig.getDeviceRegistrationUrl(supportedDeviceType));
-        Builder requestBuilder = target.request();
-        
-        requestBuilder.header("Authorization", iotConfig.getAuthHeader());
-        System.out.println("Registering device with ID " + registration.getDeviceId());
-        
-        IoTReg iotReg = new IoTReg(registration.getDeviceId(), DeviceUtils.generateAlphaNum());
-        
-        Response response = requestBuilder.post(Entity.json(iotReg));
-        System.out.println("Got back: " + response.getStatus());
-        
-        IoTRegistrationResponse rr = response.readEntity(IoTRegistrationResponse.class);
-        
-        System.out.println("Returned payload: " + rr);
-        return rr;
-    }
 
 
     @Override
     public String getSupportedDeviceType() {
         return supportedDeviceType;
+    }
+
+    @Override
+    public DeviceRequest translateRequest(Event event) {
+        // TODO Auto-generated method stub
+        
+        // Handle the situation where a board emits an event to say its full
+        return null;
+    }
+
+    @Override
+    public void handleRequest(DeviceRequest dr) {
+        //Find a slot on an available device, or reuse an existign slot
+        
     }
 
 }

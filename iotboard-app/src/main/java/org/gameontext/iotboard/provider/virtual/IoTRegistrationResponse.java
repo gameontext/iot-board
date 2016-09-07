@@ -8,7 +8,7 @@ public class IoTRegistrationResponse {
     private String typeId;
     private String deviceId;
     private String authToken;
-    private List<String> violations = new ArrayList<String>();
+    private List<String> reportedErrors = new ArrayList<String>();
     
     @Override
     public String toString() {
@@ -39,15 +39,15 @@ public class IoTRegistrationResponse {
     public void setAuthToken(String authToken) {
         this.authToken = authToken;
     }
-    public void addViolation(String message) {
-        violations.add(message);
+    public void addReportedError(String message) {
+        reportedErrors.add(message);
         
     }
-    public boolean hasViolations() {
-        return violations.size() > 0;
+    public boolean hasReportedErrors() {
+        return reportedErrors.size() > 0;
     }
-    public List<String> getViolations() {
-        return violations;
+    public List<String> getreportedErrors() {
+        return reportedErrors;
     }
     
 

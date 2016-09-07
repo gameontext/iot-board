@@ -17,33 +17,36 @@ package org.gameontext.iotboard.provider.virtual;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation.Builder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
+import javax.json.JsonObject;
 
+import org.gameontext.iotboard.MessageStack;
+import org.gameontext.iotboard.RegistrationUtils;
+import org.gameontext.iotboard.Request;
+import org.gameontext.iotboard.iot.DeviceUtils;
 import org.gameontext.iotboard.models.DeviceRegistrationRequest;
 import org.gameontext.iotboard.models.devices.BoardControl;
 import org.gameontext.iotboard.provider.BoardProvider;
+import org.gameontext.iotboard.provider.DeviceRequest;
+
+import com.ibm.iotf.client.app.Event;
 
 @ApplicationScoped
 public class VirtualBoardProvider implements BoardProvider {
+    
+    
+    @Inject
+    MessageStack messageStack;
+    
     
     private static final String supportedDeviceType = "VirtualBoard";
 
     Map<String, Devices> devicesByPlayer = new HashMap<String, Devices>();
     
     @Inject
-    IoTConfiguration iotConfig;
-    
-    @Inject
-    IoTAppClient appClient;
+    RegistrationUtils regUtils;
     
     @Override
     public void process(BoardControl msg) {
@@ -51,7 +54,7 @@ public class VirtualBoardProvider implements BoardProvider {
     }
 
     public DeviceRegistrationResponse registerDevice(DeviceRegistrationRequest registration) {
-        String deviceId = getOrCreateDeviceId(registration);
+        DeviceUtils.assignDeviceId(registration);
         
         Devices devices = devicesByPlayer.get(registration.getPlayerId());
         if (devices == null) {
@@ -59,64 +62,81 @@ public class VirtualBoardProvider implements BoardProvider {
             devicesByPlayer.put(registration.getPlayerId(), devices);
         }
 
-        IoTRegistrationResponse rr = registerIntoIoTF(registration);
-        
-        DeviceRegistrationResponse drr = new DeviceRegistrationResponse();
-
-        if (rr.hasViolations())  {
-            drr.setViolations(rr.getViolations());
-            return drr;
-        }
-        
-        drr.setIotMessagingOrgAndHost(iotConfig.getiotMessagingOrgAndHost());
-        drr.setIotMessagingPort(iotConfig.getIotMessagingPort());
-        drr.setDeviceId(rr.getDeviceId());
-        drr.setDeviceAuthToken(rr.getAuthToken());
-        drr.setIotClientId(rr.getClientId());
-        drr.setEventTopic("iot-2/type/"+ rr.getTypeId() +"/id/"+ rr.getDeviceId() + "/evt/+/fmt/json");
-        drr.setCmdTopic("iot-2/cmd/+/fmt/json");
+        DeviceRegistrationResponse drr = regUtils.registerDevice(registration);
            
-        devices.add(drr.getDeviceId()); 
-        return drr;
-    }
-
-    private IoTRegistrationResponse registerIntoIoTF(DeviceRegistrationRequest registration) {
-        Client client = ClientBuilder.newClient().register(RegistrationResponseReader.class);
-        
-        WebTarget target = client.target(iotConfig.getDeviceRegistrationUrl(supportedDeviceType));
-        Builder requestBuilder = target.request();
-        
-        requestBuilder.header("Authorization", iotConfig.getAuthHeader());
-        System.out.println("Registering device with ID " + registration.getDeviceId());
-        
-        IoTReg iotReg = new IoTReg(registration.getDeviceId(), generateAlphaNum());
-        
-        Response response = requestBuilder.post(Entity.json(iotReg));
-        System.out.println("Got back: " + response.getStatus());
-        
-        IoTRegistrationResponse rr = response.readEntity(IoTRegistrationResponse.class);
-        
-        System.out.println("Returned payload: " + rr);
-        return rr;
-    }
-
-    private String getOrCreateDeviceId(DeviceRegistrationRequest registration) {
-        String deviceId = registration.getDeviceId();
-        if (deviceId == null) {
-            deviceId = generateAlphaNum();
+        if (!drr.hasReportedErrors()) {
+            devices.add(drr.getDeviceId());
         }
-
-        registration.setDeviceId(deviceId);
-        return deviceId;
-    }
-    
-    private String generateAlphaNum() {
-        return UUID.randomUUID().toString().replaceAll("[^A-Za-z0-9]", "");
+        
+        return drr;
     }
 
     @Override
     public String getSupportedDeviceType() {
-        return "VirtualBoard";
+        return supportedDeviceType;
+    }
+
+    @Override
+    public DeviceRequest translateRequest(Event event) {
+        System.out.println("Translating Request");
+        String deviceType = event.getDeviceType();
+        if (!deviceType.equals(supportedDeviceType)) {
+            System.out.println("Throwing Exception");
+            throw new RuntimeException("Cannot marshal data for event type " + deviceType);
+        }
+        DeviceRequest dr = new DeviceRequest();
+        System.out.println("Marshalling data");
+        JsonObject payload = DeviceUtils.marshallData(event.getPayload());
+        System.out.println("Marshalling complete");
+        
+        
+        String siteId = payload.getString("siteId");
+        System.out.println("Site Id is " + siteId);
+        dr.setSiteId(siteId);
+        
+
+        String playerId = payload.getString("playerId");
+        System.out.println("Player Id is " + playerId);
+        dr.setPlayerId(playerId);
+        
+        String roomId = payload.getString("roomId");
+        System.out.println("Room Id is " + roomId);
+        dr.setRoomId(roomId);
+        
+        System.out.println("Getting data");
+        JsonObject data = payload.getJsonObject("data");
+        System.out.println("Data object is " + data);
+        String lightId = data.getString("lightId");
+        System.out.println("Light ID is  " + lightId);
+        Boolean lightState = data.getBoolean("lightState");
+        System.out.println("Light ID is  " + lightState);
+        dr.setStatus(lightState);
+        System.out.println("Returning");
+        return dr;
+    }
+
+    @Override
+    public void handleRequest(DeviceRequest dr) {
+        
+        IotVirtualBoardPayload payload = new IotVirtualBoardPayload();
+        payload.setGid(dr.getPlayerId());
+        payload.setSid(dr.getSiteId());
+        payload.setName("Test name");
+        VirtualBoardData data = new VirtualBoardData();
+        data.setLight("player");
+        data.setStatus(dr.getState());
+        payload.setData(data);
+        
+        Devices devices = devicesByPlayer.get(dr.getPlayerId());
+        for (String deviceId : devices.getDevices()) {
+            Request r = new Request();
+            r.setCommand("update");
+            r.setDeviceId(deviceId);
+            r.setDeviceType(supportedDeviceType);
+            r.setEvent(payload);
+            messageStack.addRequest(r);
+        }
+        
     }
 
 }

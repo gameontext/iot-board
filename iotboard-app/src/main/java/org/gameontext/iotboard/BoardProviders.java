@@ -64,7 +64,8 @@ public class BoardProviders {
     }
     
     public BoardProvider getProvider(String deviceType) {
-        return providers.get(deviceType);
+        BoardProvider provider = providers.get(deviceType); 
+        return provider;
     }
     
     @PostConstruct

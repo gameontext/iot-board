@@ -13,7 +13,6 @@ import javax.json.JsonReader;
 import javax.json.JsonString;
 import javax.json.JsonStructure;
 import javax.json.JsonValue;
-import javax.json.JsonValue.ValueType;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -39,13 +38,11 @@ public class RegistrationResponseReader implements MessageBodyReader<IoTRegistra
         try {
              rdr = Json.createReader(entityStream);
              JsonStructure json = rdr.read();
-             ValueType mainType = json.getValueType();
-             
              JsonObject returnedJson = (JsonObject) json;
              
-             JsonArray violations = returnedJson.getJsonArray("violations");
+             JsonArray reportedErrors = returnedJson.getJsonArray("violations");
              
-             IoTRegistrationResponse attendee = processViolations(violations);
+             IoTRegistrationResponse attendee = processReportedErrors(reportedErrors);
              
              JsonString authToken = returnedJson.getJsonString("authToken");
              JsonString typeId = returnedJson.getJsonString("typeId");
@@ -64,16 +61,16 @@ public class RegistrationResponseReader implements MessageBodyReader<IoTRegistra
         }
     }
 
-    private String sanitiseNull(JsonString authToken) {
-        return (authToken == null) ? null : authToken.getString();
+    private String sanitiseNull(JsonString jsonString) {
+        return (jsonString == null) ? null : jsonString.getString();
     }
 
-    private IoTRegistrationResponse processViolations(JsonArray violations) {
+    private IoTRegistrationResponse processReportedErrors(JsonArray reportedErrors) {
         IoTRegistrationResponse response = new IoTRegistrationResponse();
-        if (violations != null) {
-            for (JsonValue jsonValue : violations) {
+        if (reportedErrors != null) {
+            for (JsonValue jsonValue : reportedErrors) {
                 JsonObject violation = (JsonObject) jsonValue;
-                response.addViolation(violation.getString("message"));
+                response.addReportedError(violation.getString("message"));
             }
         }
         return response;

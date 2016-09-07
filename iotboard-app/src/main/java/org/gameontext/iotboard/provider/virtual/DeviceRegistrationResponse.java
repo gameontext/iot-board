@@ -10,7 +10,7 @@ public class DeviceRegistrationResponse {
     private String iotClientId; //"d:"+"pmoxqf"+":iot-phone:"+window.deviceId;
     private String eventTopic;
     private String cmdTopic;
-    private List<String> violations;
+    private List<String> reportedErrors;
     
     public String getIotMessagingOrgAndHost() {
         return iotMessagingOrgAndHost;
@@ -54,15 +54,15 @@ public class DeviceRegistrationResponse {
     public void setCmdTopic(String cmdTopic) {
         this.cmdTopic = cmdTopic;
     }
-    public void setViolations(List<String> violations) {
-        this.violations = violations;
+    public void setReportedErrors(List<String> reportedErrors) {
+        this.reportedErrors = reportedErrors;
         
     }
-    public boolean hasViolations() {
-        return this.violations != null && this.violations.size() > 0;
+    public boolean hasReportedErrors() {
+        return this.reportedErrors != null && this.reportedErrors.size() > 0;
     }
     
     public List<String> getViolations() {
-        return this.violations;
+        return this.reportedErrors;
     }
 }

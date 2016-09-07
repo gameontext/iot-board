@@ -89,9 +89,28 @@ angular.module('iotBoardApp')
 			  var site = $scope.sites[i];
 			  var toggle = site.player.colour == 'red' ? true : false;
 			  var d = {d: {sid: site.sid, name: site.name, gid: site.gid, data : {light : 'player', status: toggle}}};
-			  var event = {};
-			  event.payloadString = JSON.stringify(d);
-			  onMessageArrived(event);
+			  console.log("Sending message");
+			  var payload = {
+					  d : {
+						  "id" : $scope.iotf.deviceId,
+						  siteId: site.sid,
+				          roomId: site.name,
+				          playerId: site.gid,
+				          data : {
+				        	  lightId : 'player',
+				        	  lightState: toggle
+				          }
+					  }
+			  };
+			  
+			  var message = new Paho.MQTT.Message(JSON.stringify(payload));
+			  message.destinationName = $scope.iotf.eventTopic;
+			  try {
+				  $scope.iotfClient.send(message);
+				  console.log("[%s] Published", new Date().getTime());
+			  } catch (err) {
+				  console.error(err);
+			  }
 			  return;
 		  }
 	  }
