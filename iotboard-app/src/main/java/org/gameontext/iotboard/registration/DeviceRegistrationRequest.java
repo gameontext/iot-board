@@ -1,4 +1,4 @@
-package org.gameontext.iotboard.models;
+package org.gameontext.iotboard.registration;
 
 public class DeviceRegistrationRequest {
 

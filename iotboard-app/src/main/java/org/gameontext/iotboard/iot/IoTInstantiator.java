@@ -5,8 +5,6 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
-import org.gameontext.iotboard.provider.virtual.IoTAppClient;
-
 @WebListener
 public class IoTInstantiator implements ServletContextListener {
 

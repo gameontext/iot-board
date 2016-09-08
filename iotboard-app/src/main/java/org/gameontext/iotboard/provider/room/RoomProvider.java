@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package org.gameontext.iotboard.iot.virtualled;
+package org.gameontext.iotboard.provider.room;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,24 +28,24 @@ import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
-import org.gameontext.iotboard.MessageStack;
 import org.gameontext.iotboard.RegistrationUtils;
 import org.gameontext.iotboard.Request;
+import org.gameontext.iotboard.iot.DeviceRequest;
 import org.gameontext.iotboard.iot.DeviceUtils;
-import org.gameontext.iotboard.models.DeviceRegistrationRequest;
+import org.gameontext.iotboard.iot.IoTConfiguration;
+import org.gameontext.iotboard.iot.MessageStack;
 import org.gameontext.iotboard.models.devices.BoardControl;
-import org.gameontext.iotboard.provider.BoardProvider;
-import org.gameontext.iotboard.provider.DeviceRequest;
-import org.gameontext.iotboard.provider.virtual.DeviceRegistrationResponse;
-import org.gameontext.iotboard.provider.virtual.IoTConfiguration;
-import org.gameontext.iotboard.provider.virtual.IoTReg;
-import org.gameontext.iotboard.provider.virtual.IoTRegistrationResponse;
-import org.gameontext.iotboard.provider.virtual.RegistrationResponseReader;
+import org.gameontext.iotboard.provider.DeviceHandler;
+import org.gameontext.iotboard.registration.DeviceRegistrationRequest;
+import org.gameontext.iotboard.registration.DeviceRegistrationResponse;
+import org.gameontext.iotboard.registration.IoTReg;
+import org.gameontext.iotboard.registration.IoTRegistrationResponse;
+import org.gameontext.iotboard.registration.RegistrationResponseReader;
 
 import com.ibm.iotf.client.app.Event;
 
 @ApplicationScoped
-public class RoomProvider implements BoardProvider {
+public class RoomProvider implements DeviceHandler {
     
     
     @Inject

@@ -8,7 +8,7 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonStructure;
 
-import org.gameontext.iotboard.models.DeviceRegistrationRequest;
+import org.gameontext.iotboard.registration.DeviceRegistrationRequest;
 
 public class DeviceUtils {
 

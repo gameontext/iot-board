@@ -1,4 +1,4 @@
-package org.gameontext.iotboard.provider.virtual;
+package org.gameontext.iotboard.registration;
 
 import java.util.ArrayList;
 import java.util.List;

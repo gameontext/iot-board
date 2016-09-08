@@ -1,9 +1,10 @@
-package org.gameontext.iotboard.provider.virtual;
+package org.gameontext.iotboard.registration;
 
 import java.util.List;
 
 public class DeviceRegistrationResponse {
-    private String iotMessagingOrgAndHost; //"pmoxqf" + ".messaging.internetofthings.ibmcloud.com";
+    private String iotMessagingOrgAndHost;
+    private String iotMessagingHost;
     private int iotMessagingPort; // 1883;
     private String deviceId; //"RossPhone";
     private String deviceAuthToken; //"12345678";
@@ -64,5 +65,11 @@ public class DeviceRegistrationResponse {
     
     public List<String> getViolations() {
         return this.reportedErrors;
+    }
+    public String getIotMessagingHost() {
+        return iotMessagingHost;
+    }
+    public void setIotMessagingHost(String iotMessagingHost) {
+        this.iotMessagingHost = iotMessagingHost;
     }
 }

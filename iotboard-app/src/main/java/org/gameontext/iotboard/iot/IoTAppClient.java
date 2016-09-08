@@ -1,4 +1,4 @@
-package org.gameontext.iotboard.provider.virtual;
+package org.gameontext.iotboard.iot;
 
 import java.util.Properties;
 import java.util.concurrent.Executors;
@@ -10,17 +10,12 @@ import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.gameontext.iotboard.MessageStack;
-import org.gameontext.iotboard.iot.DeviceCallback;
-
 import com.ibm.iotf.client.app.ApplicationClient;
 
 @ApplicationScoped
 public class IoTAppClient {
-
     
-    private final ScheduledExecutorService scheduler =
-            Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     
     @Inject
     MessageStack messageStack;

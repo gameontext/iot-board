@@ -98,6 +98,7 @@ angular.module('iotBoardApp')
 				          playerId: site.gid,
 				          data : {
 				        	  lightId : 'player',
+				        	  lightAddress: site.lightAddress,
 				        	  lightState: toggle
 				          }
 					  }
@@ -182,7 +183,9 @@ angular.module('iotBoardApp')
 	  }
 	  if(msg.data.light == 'player') {
 		  site.player.colour = msg.data.status ? 'green' : 'red';
+		  site.lightAddress = "Test";//msg.data.lightAddress;  
 	  }
+	  
 	  $scope.$apply();
   }
   

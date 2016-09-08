@@ -15,9 +15,10 @@
  *******************************************************************************/
 package org.gameontext.iotboard.provider;
 
-import org.gameontext.iotboard.models.DeviceRegistrationRequest;
+import org.gameontext.iotboard.iot.DeviceRequest;
 import org.gameontext.iotboard.models.devices.BoardControl;
-import org.gameontext.iotboard.provider.virtual.DeviceRegistrationResponse;
+import org.gameontext.iotboard.registration.DeviceRegistrationRequest;
+import org.gameontext.iotboard.registration.DeviceRegistrationResponse;
 
 import com.ibm.iotf.client.app.Event;
 
@@ -25,7 +26,7 @@ import com.ibm.iotf.client.app.Event;
  * Implemented by board providers
  *
  */
-public interface BoardProvider {
+public interface DeviceHandler {
     
     /**
      * Process a control message to set the status

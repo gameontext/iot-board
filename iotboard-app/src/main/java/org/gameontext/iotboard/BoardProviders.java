@@ -23,10 +23,10 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.gameontext.iotboard.iot.virtualled.RoomProvider;
-import org.gameontext.iotboard.iot.virtualled.VirtualLEDBoardProvider;
-import org.gameontext.iotboard.provider.BoardProvider;
+import org.gameontext.iotboard.models.devices.DeviceHandler;
+import org.gameontext.iotboard.provider.room.RoomProvider;
 import org.gameontext.iotboard.provider.virtual.VirtualBoardProvider;
+import org.gameontext.iotboard.provider.virtualled.VirtualLEDBoardProvider;
 
 
 /**
@@ -47,24 +47,24 @@ public class BoardProviders {
     @Inject
     RoomProvider rp;
     
-    private final ConcurrentMap<String, BoardProvider> providers = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, DeviceHandler> providers = new ConcurrentHashMap<>();
     
-    public Collection<BoardProvider> getProviders() {
+    public Collection<DeviceHandler> getProviders() {
         return providers.values();
     }
     
     //TODO make thread safe and lock access to the sites under this registration
-    public void deleteRegistration(BoardProvider provider) {
+    public void deleteRegistration(DeviceHandler provider) {
         providers.remove(provider.getSupportedDeviceType());
     }
     
     //add a new site registration or update an existing one
-    public void addRegistration(BoardProvider provider) {
+    public void addRegistration(DeviceHandler provider) {
         providers.putIfAbsent(provider.getSupportedDeviceType(), provider);
     }
     
-    public BoardProvider getProvider(String deviceType) {
-        BoardProvider provider = providers.get(deviceType); 
+    public DeviceHandler getProvider(String deviceType) {
+        DeviceHandler provider = providers.get(deviceType); 
         return provider;
     }
     

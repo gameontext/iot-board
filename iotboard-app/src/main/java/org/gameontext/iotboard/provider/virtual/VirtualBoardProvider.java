@@ -22,19 +22,20 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.JsonObject;
 
-import org.gameontext.iotboard.MessageStack;
 import org.gameontext.iotboard.RegistrationUtils;
 import org.gameontext.iotboard.Request;
+import org.gameontext.iotboard.iot.DeviceRequest;
 import org.gameontext.iotboard.iot.DeviceUtils;
-import org.gameontext.iotboard.models.DeviceRegistrationRequest;
+import org.gameontext.iotboard.iot.MessageStack;
 import org.gameontext.iotboard.models.devices.BoardControl;
-import org.gameontext.iotboard.provider.BoardProvider;
-import org.gameontext.iotboard.provider.DeviceRequest;
+import org.gameontext.iotboard.provider.DeviceHandler;
+import org.gameontext.iotboard.registration.DeviceRegistrationRequest;
+import org.gameontext.iotboard.registration.DeviceRegistrationResponse;
 
 import com.ibm.iotf.client.app.Event;
 
 @ApplicationScoped
-public class VirtualBoardProvider implements BoardProvider {
+public class VirtualBoardProvider implements DeviceHandler {
     
     
     @Inject

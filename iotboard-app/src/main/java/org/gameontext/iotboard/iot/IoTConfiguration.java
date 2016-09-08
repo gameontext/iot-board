@@ -1,4 +1,4 @@
-package org.gameontext.iotboard.provider.virtual;
+package org.gameontext.iotboard.iot;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;

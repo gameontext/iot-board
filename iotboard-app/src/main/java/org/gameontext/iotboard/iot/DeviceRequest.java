@@ -1,4 +1,4 @@
-package org.gameontext.iotboard.provider;
+package org.gameontext.iotboard.iot;
 
 import java.util.HashMap;
 import java.util.Map;

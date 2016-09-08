@@ -1,4 +1,4 @@
-package org.gameontext.iotboard;
+package org.gameontext.iotboard.iot;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.gameontext.iotboard.provider.virtual.IoTAppClient;
+import org.gameontext.iotboard.Request;
 
 @ApplicationScoped
 public class MessageStack implements Runnable {

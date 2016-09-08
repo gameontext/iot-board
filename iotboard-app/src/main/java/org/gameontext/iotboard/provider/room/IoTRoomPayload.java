@@ -1,4 +1,4 @@
-package org.gameontext.iotboard.iot.virtualled;
+package org.gameontext.iotboard.provider.room;
 
 public class IoTRoomPayload {
 

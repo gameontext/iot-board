@@ -33,7 +33,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.gameontext.iotboard.models.devices.BoardControl;
-import org.gameontext.iotboard.provider.BoardProvider;
+import org.gameontext.iotboard.models.devices.DeviceHandler;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -72,7 +72,7 @@ public class BoardControlEndpoint {
     public Response getConfig() {
 
         StringBuilder builder = new StringBuilder("[");
-        for(BoardProvider provider : providers.getProviders()) {
+        for(DeviceHandler provider : providers.getProviders()) {
             builder.append("{'name':'" + provider.getSupportedDeviceType() + "'}\n");
         }
         builder.append("]");
@@ -94,7 +94,7 @@ public class BoardControlEndpoint {
     public Response changeDevice(
             @ApiParam(value = "New board attributes", required = true) BoardControl control) {
 
-        for(BoardProvider provider : providers.getProviders()) {
+        for(DeviceHandler provider : providers.getProviders()) {
             provider.process(control);
         }
         return Response.ok().build();
@@ -113,7 +113,7 @@ public class BoardControlEndpoint {
     public Response updateRoom(
             @ApiParam(value = "Updated device attributes", required = true) BoardControl control) {
 
-        for(BoardProvider provider : providers.getProviders()) {
+        for(DeviceHandler provider : providers.getProviders()) {
             provider.process(control);
         }
         return Response.ok().build();

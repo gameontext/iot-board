@@ -19,7 +19,6 @@ import java.net.HttpURLConnection;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -27,11 +26,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
-import org.gameontext.iotboard.models.DeviceRegistrationRequest;
-import org.gameontext.iotboard.provider.BoardProvider;
-import org.gameontext.iotboard.provider.virtual.DeviceRegistrationResponse;
-import org.gameontext.iotboard.provider.virtual.VirtualBoardProvider;
+import org.gameontext.iotboard.models.devices.DeviceHandler;
+import org.gameontext.iotboard.registration.DeviceRegistrationRequest;
+import org.gameontext.iotboard.registration.DeviceRegistrationResponse;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -64,16 +63,13 @@ public class DeviceControlEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerDevice(
             @ApiParam(value = "Details of registering device", required = true) DeviceRegistrationRequest registration, @Context HttpServletRequest request) {
-        
         System.out.println("New device registration request: " + registration);
         // Register Device
         // Add subscription to the list
         
         
-        int returnedStatus = 200;
-        
         System.out.println("Registering device: " + registration.getDeviceId());
-        BoardProvider provider = providers.getProvider(registration.getDeviceType());
+        DeviceHandler provider = providers.getProvider(registration.getDeviceType());
         DeviceRegistrationResponse drr = provider.registerDevice(registration);
         if (drr.hasReportedErrors()) {
             return Response.status(400).entity(drr).build();

@@ -4,8 +4,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.gameontext.iotboard.BoardProviders;
-import org.gameontext.iotboard.provider.BoardProvider;
-import org.gameontext.iotboard.provider.DeviceRequest;
+import org.gameontext.iotboard.models.devices.DeviceHandler;
 
 import com.ibm.iotf.client.app.Command;
 import com.ibm.iotf.client.app.Event;
@@ -28,10 +27,10 @@ public class DeviceCallback implements EventCallback {
         System.out.println("Got event: " + event.getDeviceType() + "/" + event.getDeviceId() + ": " + event.getPayload());
         
         String deviceType = event.getDeviceType();
-        BoardProvider handlingProvider = boardProviders.getProvider(deviceType);
+        DeviceHandler handlingProvider = boardProviders.getProvider(deviceType);
         DeviceRequest dr = handlingProvider.translateRequest(event);
         
-        for (BoardProvider boardProvider : boardProviders.getProviders()) {
+        for (DeviceHandler boardProvider : boardProviders.getProviders()) {
             boardProvider.handleRequest(dr);
         }
         

@@ -1,6 +1,6 @@
 package org.gameontext.iotboard.provider.virtual;
 
-import org.gameontext.iotboard.iot.virtualled.Data;
+import org.gameontext.iotboard.provider.room.Data;
 
 public class IotVirtualBoardPayload {
 
