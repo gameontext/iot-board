@@ -29,14 +29,15 @@ angular.module('iotBoardApp')
   $scope.lightState = { selected: true };
   
   $scope.registerDevice = function() {
-	 console.log("Registering device for room " + $scope.roomId);
+	 console.log("Registering device for room " + $scope.roomName);
+	 $scope.siteId = $scope.playerId + '_' + $scope.roomName;
 	 $http({
 	     url: "/iotboard/v1/devices",
 	     method: "POST",
 	     headers: {  
 	                 'contentType': 'application/json; charset=utf-8"', //what is being sent to the server
 	     },
-	     data: JSON.stringify({deviceType: 'GameOnRoom', deviceId: $scope.deviceId, roomId: $scope.roomId, playerId: $scope.playerId, siteId: $scope.playerId + '_' + $scope.roomId}).trim()
+	     data: JSON.stringify({deviceType: 'GameOnRoom', deviceId: $scope.deviceId, roomName: $scope.roomName, playerId: $scope.playerId, siteId: $scope.siteId}).trim()
 	   }).then(function (response) {
 		    console.log('Device registration successful : response from server : ' + response.status);
 		    $scope.iotf.iot_host = response.data.iotMessagingOrgAndHost;
@@ -55,12 +56,6 @@ angular.module('iotBoardApp')
    		}
 	 );
   }
-  
-  $scope.changeName = function() {
-	$scope.sites[1].reg.colour = "green";  
-  }
-  
-//*********************************************************************************************
   
 	function onConnectSuccess() {
 		// The device connected successfully
@@ -120,12 +115,15 @@ angular.module('iotBoardApp')
   $scope.sendMessage = function() {
 	  console.log("Sending message");
 	  var payload = {
-        "d" : {
-               "id" : $scope.iotf.deviceId,
-               "data": {
-            	  "lightId": $scope.lightId,
-                  "lightState": $scope.lightState.selected
-               }
+        d : {
+             id : $scope.iotf.deviceId,
+             playerId : $scope.playerId,
+             siteId: $scope.siteId,
+             roomName: $scope.roomName,
+             data: {
+            	 lightAddress: $scope.lightAddress,
+                 lightState: $scope.lightState.selected            	 
+             }
         }
       }
 	  

@@ -32,7 +32,7 @@ angular.module('iotBoardApp')
   $scope.iotfClient = {};	//IoT foundation client connection
   
   $scope.registerDevice = function() {
-	 console.log("Registering device for user " + $scope.gid);
+	 console.log("Registering device " + $scope.deviceId);
 	 $http({
 	     url: "/iotboard/v1/devices",
 	     method: "POST",
@@ -58,29 +58,19 @@ angular.module('iotBoardApp')
    		}
 	 );
   }
-//***************************************************************************************
-// Test functions to be removed
-//***************************************************************************************
-  $scope.addSite = function() {
-	  $scope.sites.push({sid:'Site number ' + $scope.sites.length, reg : {colour: 'red'}, player : {colour: 'red'}});
-  }
-  
-  $scope.changeName = function() {
-	$scope.sites[1].reg.colour = "green";  
-  }
   
   $scope.testReceiveMessage = function() {
 	  //setup a simulated event for receiving 
 	  var event = {};
-	  var d = {d: {led: 2, status: true}};
+	  var d = {d: {pin: 2, state: true}};
 	  event.payloadString = JSON.stringify(d);
 	  setTimeout(onMessageArrived, 3000, event);
 	  event = {};
-	  d = {d: {led: 2, status: false}};
+	  d = {d: {pin: 2, state: false}};
 	  event.payloadString = JSON.stringify(d);
 	  setTimeout(onMessageArrived, 5000, event);
 	  event = {};
-	  d = {d: {led: 5, status: true}};
+	  d = {d: {pin: 5, state: true}};
 	  event.payloadString = JSON.stringify(d);
 	  setTimeout(onMessageArrived, 7000, event);
   }
@@ -137,7 +127,7 @@ angular.module('iotBoardApp')
 	  var payload = JSON.parse(event.payloadString);
 	  var msg = payload.d;
 	  console.log("LEDBoard : processing incoming message : " + JSON.stringify(msg));
-	  $scope.leds[msg.led].status = msg.status ? 'green' : 'red';
+	  $scope.leds[msg.pin - 1].status = msg.state ? 'green' : 'red';
 	  $scope.$apply();
   }
   

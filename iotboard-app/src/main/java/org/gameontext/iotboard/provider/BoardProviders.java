@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package org.gameontext.iotboard;
+package org.gameontext.iotboard.provider;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,7 +23,6 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.gameontext.iotboard.models.devices.DeviceHandler;
 import org.gameontext.iotboard.provider.room.RoomProvider;
 import org.gameontext.iotboard.provider.virtual.VirtualBoardProvider;
 import org.gameontext.iotboard.provider.virtualled.VirtualLEDBoardProvider;

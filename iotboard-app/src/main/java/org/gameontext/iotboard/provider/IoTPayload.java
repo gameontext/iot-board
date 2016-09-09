@@ -1,11 +1,17 @@
-package org.gameontext.iotboard.provider.room;
+package org.gameontext.iotboard.provider;
 
-public class IoTRoomPayload {
+public class IoTPayload {
 
     private Data data;
     private String playerId;
     private String siteId;
+    private String roomName;
     
+    @Override
+    public String toString() {
+        return "IoTPayload [data=" + data + ", playerId=" + playerId + ", siteId=" + siteId + ", roomName=" + roomName
+                + "]";
+    }
     public Data getData() {
         return data;
     }
@@ -23,6 +29,12 @@ public class IoTRoomPayload {
     }
     public void setSiteId(String siteId) {
         this.siteId = siteId;
+    }
+    public String getRoomName() {
+        return roomName;
+    }
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
     }
     
 

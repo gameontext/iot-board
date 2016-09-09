@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.gameontext.iotboard.provider;
 
-import org.gameontext.iotboard.iot.DeviceRequest;
 import org.gameontext.iotboard.models.devices.BoardControl;
 import org.gameontext.iotboard.registration.DeviceRegistrationRequest;
 import org.gameontext.iotboard.registration.DeviceRegistrationResponse;
@@ -40,7 +39,7 @@ public interface DeviceHandler {
 
     public DeviceRegistrationResponse registerDevice(DeviceRegistrationRequest registration);
 
-    public DeviceRequest translateRequest(Event event);
+    public DeviceRequest translateRequest(Event event) throws CannotTranslateEventException;
 
     public void handleRequest(DeviceRequest dr);
 }

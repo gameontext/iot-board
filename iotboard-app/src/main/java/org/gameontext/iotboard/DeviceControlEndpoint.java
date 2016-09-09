@@ -26,9 +26,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
 
-import org.gameontext.iotboard.models.devices.DeviceHandler;
+import org.gameontext.iotboard.provider.BoardProviders;
+import org.gameontext.iotboard.provider.DeviceHandler;
 import org.gameontext.iotboard.registration.DeviceRegistrationRequest;
 import org.gameontext.iotboard.registration.DeviceRegistrationResponse;
 
@@ -44,9 +44,6 @@ import io.swagger.annotations.ApiParam;
 @Produces(MediaType.APPLICATION_JSON)
 public class DeviceControlEndpoint {
 
-//    @Inject
-//    protected VirtualBoardProvider provider;
-    
     @Inject
     protected BoardProviders providers;
 

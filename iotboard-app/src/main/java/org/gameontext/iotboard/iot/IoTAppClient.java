@@ -20,7 +20,6 @@ public class IoTAppClient {
     @Inject
     MessageStack messageStack;
     
-    
     @Inject
     IoTConfiguration iotConfig;
     
@@ -49,7 +48,6 @@ public class IoTAppClient {
         }
         System.out.println("Application client created");
 
-
         scheduler.schedule(messageStack, 0, TimeUnit.NANOSECONDS);
     }
 
@@ -60,8 +58,13 @@ public class IoTAppClient {
     }
     
     public void sendCommand(String deviceType, String deviceId, String commandId, Object event) {
-        System.out.println("Publishing as " + deviceId);
-        System.out.println("Did it deliver? " + appclient.publishCommand(deviceType, deviceId, commandId, event));
-        System.out.println("Done");
+        
+        synchronized (appclient) {
+            System.out.println("Publishing as " + deviceId);
+            System.out.println("Did it deliver? " + appclient.publishCommand(deviceType, deviceId, commandId, event));
+            System.out.println("Is it connected? " + appclient.isConnected());
+            System.out.println("Done for " + deviceId);
+        }
+        
     }
 }

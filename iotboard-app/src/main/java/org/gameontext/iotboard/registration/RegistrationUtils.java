@@ -1,4 +1,4 @@
-package org.gameontext.iotboard;
+package org.gameontext.iotboard.registration;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -11,11 +11,6 @@ import javax.ws.rs.core.Response;
 
 import org.gameontext.iotboard.iot.DeviceUtils;
 import org.gameontext.iotboard.iot.IoTConfiguration;
-import org.gameontext.iotboard.registration.DeviceRegistrationRequest;
-import org.gameontext.iotboard.registration.DeviceRegistrationResponse;
-import org.gameontext.iotboard.registration.IoTReg;
-import org.gameontext.iotboard.registration.IoTRegistrationResponse;
-import org.gameontext.iotboard.registration.RegistrationResponseReader;
 
 @ApplicationScoped
 public class RegistrationUtils {

@@ -4,7 +4,7 @@ public class DeviceRegistrationRequest {
 
     private String deviceId;
     private String playerId;
-    private String roomId;
+    private String roomName;
     private String siteId;
     private String deviceType;
 
@@ -18,8 +18,8 @@ public class DeviceRegistrationRequest {
 
     @Override
     public String toString() {
-        return "DeviceRegistrationRequest [deviceId=" + deviceId + ", playerId=" + playerId + ", deviceType="
-                + deviceType + "]";
+        return "DeviceRegistrationRequest [deviceId=" + deviceId + ", playerId=" + playerId + ", roomName=" + roomName
+                + ", siteId=" + siteId + ", deviceType=" + deviceType + "]";
     }
 
     public String getDeviceId() {
@@ -37,12 +37,12 @@ public class DeviceRegistrationRequest {
         return this.deviceType;
     }
 
-    public String getRoomId() {
-        return roomId;
+    public String getRoomName() {
+        return roomName;
     }
 
-    public void setRoomId(String roomId) {
-        this.roomId = roomId;
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
     }
 
     public String getSiteId() {

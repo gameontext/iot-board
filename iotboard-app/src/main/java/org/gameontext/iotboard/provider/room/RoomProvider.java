@@ -15,77 +15,40 @@
  *******************************************************************************/
 package org.gameontext.iotboard.provider.room;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation.Builder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
+import javax.json.JsonObject;
 
-import org.gameontext.iotboard.RegistrationUtils;
-import org.gameontext.iotboard.Request;
-import org.gameontext.iotboard.iot.DeviceRequest;
 import org.gameontext.iotboard.iot.DeviceUtils;
 import org.gameontext.iotboard.iot.IoTConfiguration;
+import org.gameontext.iotboard.iot.IoTMessage;
 import org.gameontext.iotboard.iot.MessageStack;
 import org.gameontext.iotboard.models.devices.BoardControl;
+import org.gameontext.iotboard.provider.CannotTranslateEventException;
+import org.gameontext.iotboard.provider.Data;
 import org.gameontext.iotboard.provider.DeviceHandler;
+import org.gameontext.iotboard.provider.DeviceRequest;
+import org.gameontext.iotboard.provider.IoTPayload;
 import org.gameontext.iotboard.registration.DeviceRegistrationRequest;
 import org.gameontext.iotboard.registration.DeviceRegistrationResponse;
-import org.gameontext.iotboard.registration.IoTReg;
-import org.gameontext.iotboard.registration.IoTRegistrationResponse;
-import org.gameontext.iotboard.registration.RegistrationResponseReader;
+import org.gameontext.iotboard.registration.RegistrationUtils;
 
 import com.ibm.iotf.client.app.Event;
 
 @ApplicationScoped
 public class RoomProvider implements DeviceHandler {
     
-    
     @Inject
     MessageStack messageStack;
     
-    
-    public static class Room {
-        private String siteId;
-        private String playerId;
-        private String roomId;
-        
-        public void setSiteId(String siteId) {
-            this.siteId = siteId;
-        }
-
-        public void setPlayerId(String playerId) {
-            this.playerId = playerId;
-        }
-
-        public void setRoomId(String roomId) {
-            this.roomId = roomId;
-        }
-
-        public String getSiteId() {
-            return siteId;
-        }
-
-        public String getPlayerId() {
-            return playerId;
-        }
-
-        public String getRoomId() {
-            return roomId;
-        }
-
-    }
-
     private static final String supportedDeviceType = "GameOnRoom";
 
-    Map<String, Room> roomsByDeviceId = new HashMap<String, Room>();
+    @Inject
+    RoomList roomList;
     
     @Inject
     IoTConfiguration iotConfig;
@@ -101,20 +64,21 @@ public class RoomProvider implements DeviceHandler {
     public DeviceRegistrationResponse registerDevice(DeviceRegistrationRequest registration) {
         DeviceUtils.assignDeviceId(registration);
         
-        Room room = roomsByDeviceId.get(registration.getDeviceId());
+        Room room = roomList.getRoomByDeviceId(registration.getDeviceId());
         if (room == null) {
             room = new Room();
-            roomsByDeviceId.put(registration.getDeviceId(), room);
         }
 
+        room.setDeviceId(registration.getDeviceId());
+        room.setSiteId(registration.getSiteId());
+        room.setPlayerId(registration.getPlayerId());
+        room.setRoomName(registration.getRoomName());
+        
         DeviceRegistrationResponse drr = regUtils.registerDevice(registration);
-        if (drr.hasReportedErrors()) {
-            roomsByDeviceId.remove(registration.getDeviceId());
-        } else {
-            room.setSiteId(registration.getSiteId());
-            room.setPlayerId(registration.getPlayerId());
-            room.setRoomId(registration.getRoomId());
+        if (!drr.hasReportedErrors()) {
+            roomList.addRoom(room);
         }
+
         return drr;
     }
 
@@ -124,40 +88,50 @@ public class RoomProvider implements DeviceHandler {
     }
 
     @Override
-    public DeviceRequest translateRequest(Event event) {
-        System.out.println("Translating Request");
+    public DeviceRequest translateRequest(Event event) throws CannotTranslateEventException {
+        System.out.println("Translating request for " + event.getDeviceId());
         String deviceType = event.getDeviceType();
         if (!deviceType.equals(supportedDeviceType)) {
-            System.out.println("Throwing Exception");
-            throw new RuntimeException("Cannot marshal data for event type " + deviceType);
+            throw new CannotTranslateEventException(supportedDeviceType);
         }
         DeviceRequest dr = new DeviceRequest();
-        System.out.println("Marshalling data");
-        javax.json.JsonObject payload = DeviceUtils.marshallData(event.getPayload());
-        System.out.println("Marshalling complete");
-        String deviceId = event.getDeviceId();
-        Room room = roomsByDeviceId.get(deviceId);
-        System.out.println("Room is " + room);
-        dr.setSiteId(room.getSiteId());
-        dr.setPlayerId(room.getPlayerId());
-        dr.setRoomId(room.getRoomId());
-        System.out.println("Getting data");
-        javax.json.JsonObject data = payload.getJsonObject("data");
-        System.out.println("Data object is " + data);
-        String lightId = data.getString("lightId");
-        System.out.println("Light ID is  " + lightId);
+        JsonObject payload = DeviceUtils.marshallData(event.getPayload());
+        
+        String siteId = payload.getString("siteId");
+        dr.setSiteId(siteId);
+
+        String playerId = payload.getString("playerId");
+        dr.setPlayerId(playerId);
+        
+        String roomName = payload.getString("roomName");
+        dr.setRoomName(roomName);
+        
+        JsonObject data = payload.getJsonObject("data");
+        String lightId = "player";
+        if (data.containsKey("lightId")) {
+            lightId = data.getString("lightId");
+        }
+        dr.setLightId(lightId);
+        
         Boolean lightState = data.getBoolean("lightState");
-        System.out.println("Light ID is  " + lightState);
-        dr.setStatus(lightState);
-        System.out.println("Returning");
+        dr.setLightState(lightState);
+        
+        String lightAddress = data.getString("lightAddress");
+        dr.setLightAddress(lightAddress);
+        System.out.println("Getting Room List");
+        Room room = roomList.getRoomByDeviceId(event.getDeviceId());
+        System.out.println("Found room");
+        room.setLightAddress(lightAddress);
+        
+        System.out.println("Finished processing request for " + supportedDeviceType);
         return dr;
     }
 
     @Override
     public void handleRequest(DeviceRequest dr) {
-        System.out.println("Got device request for room");
+        System.out.println("Room: handling request " + dr);
         
-        IoTRoomPayload payload = new IoTRoomPayload();
+        IoTPayload payload = new IoTPayload();
         Data data = new Data();
         data.setLightId("userLight");
         data.setLightState(dr.getState());
@@ -166,18 +140,61 @@ public class RoomProvider implements DeviceHandler {
         payload.setSiteId(dr.getSiteId());
         
         System.out.println("Sending payload: " + payload);
-        for (Entry<String, Room> room : roomsByDeviceId.entrySet()) {
-            if (room.getValue().getSiteId().equals(dr.getSiteId())) {
-                Request r = new Request();
+        for (Room room : roomList.allRooms()) {
+            if (room.getSiteId().equals(dr.getSiteId())) {
+                IoTMessage r = new IoTMessage();
                 r.setCommand("update");
-                r.setDeviceId(room.getKey());
+                r.setDeviceId(room.getDeviceId());
                 r.setDeviceType(supportedDeviceType);
                 r.setEvent(payload);
+                System.out.println("Room: About to add message to queue: " + r);
                 messageStack.addRequest(r);
             }
         }
         
         
+    }
+
+    public void validateRequest(DeviceRequest dr) throws InvalidRequestException {
+        System.out.println("Validating request");
+        String requestLightToChange = dr.getLightAddress();
+        Room matchingRoom = roomList.getRoomBySiteId(dr.getSiteId());
+        if (!matchingRoom.getLightAddress().equals(requestLightToChange)) {
+            throw new InvalidRequestException("Light requested to change " + requestLightToChange + " does not match currently used light " + matchingRoom.getLightAddress());
+        }
+        System.out.println("Request is valid");
+    }
+
+    public Collection<DeviceRequest> getInterestedRooms(DeviceRequest dr) {
+        System.out.println("Finding other interested rooms");
+        List<DeviceRequest> deviceRequests = new ArrayList<DeviceRequest>();
+        String requestLightToChange = dr.getLightAddress();
+        for (Room room : roomList.allRooms()) {
+            if (dr.getLightAddress().equals(room.getLightAddress())) {
+                DeviceRequest newRequest = new DeviceRequest();
+                String siteId = room.getSiteId();
+                newRequest.setSiteId(siteId);
+
+                String playerId = room.getPlayerId();
+                newRequest.setPlayerId(playerId);
+                
+                String roomName = room.getRoomId();
+                newRequest.setRoomName(roomName);
+                
+                String lightId = "player";
+                newRequest.setLightId(lightId);
+                
+                Boolean lightState = dr.getState();
+                newRequest.setLightState(lightState);
+                
+                String lightAddress = requestLightToChange;
+                newRequest.setLightAddress(lightAddress);
+                deviceRequests.add(newRequest);
+            }
+        }
+        
+        System.out.println("Returning " + deviceRequests);
+        return deviceRequests;
     }
     
     

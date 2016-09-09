@@ -58,7 +58,7 @@ angular.module('iotBoardApp')
 // Test functions to be removed
 //***************************************************************************************
   $scope.addSite = function() {
-	  $scope.sites.push({sid:'Site number ' + $scope.sites.length, reg : {colour: 'red'}, player : {colour: 'red'}});
+	  $scope.sites.push({siteId:'Site number ' + $scope.sites.length, reg : {colour: 'red'}, player : {colour: 'red'}});
   }
   
   $scope.changeName = function() {
@@ -68,34 +68,33 @@ angular.module('iotBoardApp')
   $scope.testReceiveMessage = function() {
 	  //setup a simulated event for receiving 
 	  var event = {};
-	  var d = {d: {sid: 'Site number 0', name: 'A new Room', gid: 'git:1234567', data : {light : 'reg', status: true}}};
+	  var d = {d: {siteId: 'Site number 0', roomName: 'A new Room', playerId: 'git:1234567', data : {lightId : 'reg', lightState: true}}};
 	  event.payloadString = JSON.stringify(d);
 	  setTimeout(onMessageArrived, 3000, event);
 	  event = {};
-	  d = {d: {sid: 'Site number 0', name: 'A new Room', gid: 'git:1234567', data : {light : 'player', status: true}}};
+	  d = {d: {siteId: 'Site number 0', roomName: 'A new Room', playerId: 'git:1234567', data : {lightId : 'player', lightAddress: '1', lightState: true}}};
 	  event.payloadString = JSON.stringify(d);
 	  setTimeout(onMessageArrived, 5000, event);
 	  event = {};
-	  d = {d: {sid: 'Site number 0', name: 'A new Room', gid: 'git:1234567', data : {light : 'player', status: false}}};
+	  d = {d: {siteId: 'Site number 0', roomName: 'A new Room', playerId: 'git:1234567', data : {lightId : 'player', lightAddress: '1', lightState: false}}};
 	  event.payloadString = JSON.stringify(d);
 	  setTimeout(onMessageArrived, 7000, event);
   }
   
   //test that a button can have it's colours toggled
-  $scope.testButtonToggle = function(sid) {
-	  console.log("IOTBoard : button toggle test for " + sid);
+  $scope.testButtonToggle = function(siteId) {
+	  console.log("IOTBoard : button toggle test for " + siteId);
 	  for(var i = 0; i < $scope.sites.length; i++) {
-		  if($scope.sites[i].sid = sid) {
+		  if($scope.sites[i].siteId = siteId) {
 			  var site = $scope.sites[i];
 			  var toggle = site.player.colour == 'red' ? true : false;
-			  var d = {d: {sid: site.sid, name: site.name, gid: site.gid, data : {light : 'player', status: toggle}}};
 			  console.log("Sending message");
 			  var payload = {
 					  d : {
 						  "id" : $scope.iotf.deviceId,
-						  siteId: site.sid,
-				          roomId: site.name,
-				          playerId: site.gid,
+						  siteId: site.siteId,
+						  roomName: site.roomName,
+				          playerId: site.playerId,
 				          data : {
 				        	  lightId : 'player',
 				        	  lightAddress: site.lightAddress,
@@ -108,7 +107,7 @@ angular.module('iotBoardApp')
 			  message.destinationName = $scope.iotf.eventTopic;
 			  try {
 				  $scope.iotfClient.send(message);
-				  console.log("[%s] Published", new Date().getTime());
+				  console.log("[%s] Published message [%s]", new Date().getTime(), message);
 			  } catch (err) {
 				  console.error(err);
 			  }
@@ -175,15 +174,15 @@ angular.module('iotBoardApp')
 	  if(!site) {
 		  //this is a new site and so add it to the board display
 		  console.log("IoTBoard : creating new site");
-		  site = {sid: msg.sid, gid : msg.gid, name : msg.name, reg : {colour: 'red'}, player : {colour: 'red'}};
+		  site = {siteId: msg.siteId, playerId : msg.playerId, roomName : msg.roomName, reg : {colour: 'red'}, player : {colour: 'red'}};
 		  $scope.sites.push(site);
 	  }
-	  if(msg.data.light == 'reg') {
-		  site.reg.colour = msg.data.status ? 'green' : 'red';
+	  if(msg.data.lightId == 'reg') {
+		  site.reg.colour = msg.data.lightState ? 'green' : 'red';
 	  }
-	  if(msg.data.light == 'player') {
-		  site.player.colour = msg.data.status ? 'green' : 'red';
-		  site.lightAddress = "Test";//msg.data.lightAddress;  
+	  if(msg.data.lightId == 'player') {
+		  site.player.colour = msg.data.lightState ? 'green' : 'red';
+		  site.lightAddress = msg.data.lightAddress;  
 	  }
 	  
 	  $scope.$apply();
@@ -191,7 +190,7 @@ angular.module('iotBoardApp')
   
   function getExisting(site) {
 	  for(var i = 0; i < $scope.sites.length; i++) {
-		  if($scope.sites[i].sid = site.sid) {
+		  if($scope.sites[i].siteId = site.siteId) {
 			  return $scope.sites[i];
 		  }
 	  }

@@ -5,10 +5,10 @@ import java.util.List;
 public class DeviceRegistrationResponse {
     private String iotMessagingOrgAndHost;
     private String iotMessagingHost;
-    private int iotMessagingPort; // 1883;
-    private String deviceId; //"RossPhone";
-    private String deviceAuthToken; //"12345678";
-    private String iotClientId; //"d:"+"pmoxqf"+":iot-phone:"+window.deviceId;
+    private int iotMessagingPort;
+    private String deviceId;
+    private String deviceAuthToken;
+    private String iotClientId;
     private String eventTopic;
     private String cmdTopic;
     private List<String> reportedErrors;

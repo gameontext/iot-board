@@ -1,10 +1,12 @@
-package org.gameontext.iotboard;
+package org.gameontext.iotboard.iot;
 
-public class Request {
+public class IoTMessage {
 
-    
-    
-    
+    @Override
+    public String toString() {
+        return "IoTMessage [event=" + event + ", command=" + command + ", deviceId=" + deviceId + ", deviceType="
+                + deviceType + "]";
+    }
     private Object event;
     private String command;
     private String deviceId;

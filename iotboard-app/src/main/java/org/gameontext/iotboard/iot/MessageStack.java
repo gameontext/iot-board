@@ -7,15 +7,13 @@ import java.util.concurrent.TimeUnit;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.gameontext.iotboard.Request;
-
 @ApplicationScoped
 public class MessageStack implements Runnable {
     
     @Inject
     IoTAppClient appClient;
     
-    private BlockingQueue<Request> requests = new ArrayBlockingQueue<Request>(20);
+    private BlockingQueue<IoTMessage> requests = new ArrayBlockingQueue<IoTMessage>(20);
     private volatile boolean running = false;
 
     @Override
@@ -23,7 +21,7 @@ public class MessageStack implements Runnable {
         running = true;
         while (running ) {
             try {
-                Request request = requests.take();
+                IoTMessage request = requests.take();
                 appClient.sendCommand(request.getDeviceType(), request.getDeviceId(), request.getCommand(), request.getEvent());
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -32,9 +30,12 @@ public class MessageStack implements Runnable {
 
     }
     
-    public void addRequest(Request r) {
+    public void addRequest(IoTMessage r) {
         try {
-            while (!requests.offer(r, 10, TimeUnit.SECONDS));
+            while (!requests.offer(r, 10, TimeUnit.SECONDS)) { 
+             
+                System.out.println("Failed to add message to the queue. Message: " + r);
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Game On! IoT LED Board</title>
+    <title>Game On! IoT Room Client</title>
     <meta name="description" content="">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -24,18 +24,20 @@
               		<h3 class="panel-title">Register room</h3>
             	</div>
             	<div class="panel-body">
-              		<label for="roomId">Room Id</label>
-		      		<input class="u-full-width" type="text" name="roomId" id="roomId" ng-model="roomId" placeholder="Enter the Room ID for this board" />
+              		<label for="roomName">Room Name</label>
+		      		<input class="u-full-width" type="text" name="roomName" id="roomName" ng-model="roomName" placeholder="Enter the Room Name" />
 		      		<label for="roomId">Device Id</label>
-		      		<input class="u-full-width" type="text" name="deviceId" id="deviceId" ng-model="deviceId" placeholder="Enter the device ID for this board" />
+		      		<input class="u-full-width" type="text" name="deviceId" id="deviceId" ng-model="deviceId" placeholder="Enter the device ID" />
 		      		<label for="playerId">Player Id</label>
-		      		<input class="u-full-width" type="text" name="playerId" id="playerId" ng-model="playerId" placeholder="Enter the player ID for this board" />
+		      		<input class="u-full-width" type="text" name="playerId" id="playerId" ng-model="playerId" placeholder="Enter the player ID" />
+                    <label for="siteId">Site Id</label>
+		      		<input class="u-full-width" type="text" name="siteId" id="siteId" ng-model="siteId" placeholder="Enter the site ID" />
 		      		<button type="button" class="btn btn-default" data-ng-click="registerDevice()">Register</button>
             	</div>
           	</div>
   			<div>
-  			<label for="lightId">Light Id</label>
-  			<input class="u-full-width" type="text" name="lightId" id="lightId" ng-model="lightId" placeholder="Enter Light ID" />
+  			<label for="lightAddress">Light Id</label>
+  			<input class="u-full-width" type="text" name="lightAddress" id="lightAddress" ng-model="lightAddress" placeholder="Enter Light Address" />
   			<label for="lightState">Light State</label>
   			<input class="u-full-width" type="checkbox" name="lightState" id="lightState" ng-model="lightState.selected" />
 	  			<button type="button" class="btn btn-default" data-ng-click="sendMessage()">Send Message</button>
@@ -48,8 +50,6 @@
   	</div>
   </div>
   <hr />
-  <button type="button" class="btn btn-default" data-ng-click="testReceiveMessage()">Test receiving messages</button><br />
-  <button type="button" class="btn btn-default" data-ng-click="testConnect()">Test Connect</button><br />
   
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>

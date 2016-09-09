@@ -15,40 +15,41 @@
  *******************************************************************************/
 package org.gameontext.iotboard.provider.virtual;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.JsonObject;
 
-import org.gameontext.iotboard.RegistrationUtils;
-import org.gameontext.iotboard.Request;
-import org.gameontext.iotboard.iot.DeviceRequest;
 import org.gameontext.iotboard.iot.DeviceUtils;
+import org.gameontext.iotboard.iot.IoTMessage;
 import org.gameontext.iotboard.iot.MessageStack;
 import org.gameontext.iotboard.models.devices.BoardControl;
+import org.gameontext.iotboard.provider.CannotTranslateEventException;
+import org.gameontext.iotboard.provider.Data;
 import org.gameontext.iotboard.provider.DeviceHandler;
+import org.gameontext.iotboard.provider.DeviceRequest;
+import org.gameontext.iotboard.provider.IoTPayload;
 import org.gameontext.iotboard.registration.DeviceRegistrationRequest;
 import org.gameontext.iotboard.registration.DeviceRegistrationResponse;
+import org.gameontext.iotboard.registration.RegistrationUtils;
 
 import com.ibm.iotf.client.app.Event;
 
 @ApplicationScoped
 public class VirtualBoardProvider implements DeviceHandler {
-    
-    
+
     @Inject
     MessageStack messageStack;
-    
-    
+
     private static final String supportedDeviceType = "VirtualBoard";
 
-    Map<String, Devices> devicesByPlayer = new HashMap<String, Devices>();
-    
+    ConcurrentMap<String, Devices> devicesByPlayer = new ConcurrentHashMap<String, Devices>();
+
     @Inject
     RegistrationUtils regUtils;
-    
+
     @Override
     public void process(BoardControl msg) {
         System.out.println("Processing control message : " + msg);
@@ -56,7 +57,7 @@ public class VirtualBoardProvider implements DeviceHandler {
 
     public DeviceRegistrationResponse registerDevice(DeviceRegistrationRequest registration) {
         DeviceUtils.assignDeviceId(registration);
-        
+
         Devices devices = devicesByPlayer.get(registration.getPlayerId());
         if (devices == null) {
             devices = new Devices();
@@ -64,11 +65,11 @@ public class VirtualBoardProvider implements DeviceHandler {
         }
 
         DeviceRegistrationResponse drr = regUtils.registerDevice(registration);
-           
+
         if (!drr.hasReportedErrors()) {
             devices.add(drr.getDeviceId());
         }
-        
+
         return drr;
     }
 
@@ -78,66 +79,64 @@ public class VirtualBoardProvider implements DeviceHandler {
     }
 
     @Override
-    public DeviceRequest translateRequest(Event event) {
-        System.out.println("Translating Request");
+    public DeviceRequest translateRequest(Event event) throws CannotTranslateEventException {
+        System.out.println("Translating request for " + event.getDeviceId());
         String deviceType = event.getDeviceType();
         if (!deviceType.equals(supportedDeviceType)) {
-            System.out.println("Throwing Exception");
-            throw new RuntimeException("Cannot marshal data for event type " + deviceType);
+            throw new CannotTranslateEventException(supportedDeviceType);
         }
         DeviceRequest dr = new DeviceRequest();
-        System.out.println("Marshalling data");
         JsonObject payload = DeviceUtils.marshallData(event.getPayload());
-        System.out.println("Marshalling complete");
-        
-        
+
         String siteId = payload.getString("siteId");
-        System.out.println("Site Id is " + siteId);
         dr.setSiteId(siteId);
-        
 
         String playerId = payload.getString("playerId");
-        System.out.println("Player Id is " + playerId);
         dr.setPlayerId(playerId);
-        
-        String roomId = payload.getString("roomId");
-        System.out.println("Room Id is " + roomId);
-        dr.setRoomId(roomId);
-        
-        System.out.println("Getting data");
+
+        String roomName = payload.getString("roomName");
+        dr.setRoomName(roomName);
+
         JsonObject data = payload.getJsonObject("data");
-        System.out.println("Data object is " + data);
         String lightId = data.getString("lightId");
-        System.out.println("Light ID is  " + lightId);
+        dr.setLightId(lightId);
+
         Boolean lightState = data.getBoolean("lightState");
-        System.out.println("Light ID is  " + lightState);
-        dr.setStatus(lightState);
-        System.out.println("Returning");
+        dr.setLightState(lightState);
+
+        String lightAddress = data.getString("lightAddress");
+        dr.setLightAddress(lightAddress);
+
+        System.out.println("Finished processing request for " + supportedDeviceType);
         return dr;
     }
 
     @Override
     public void handleRequest(DeviceRequest dr) {
-        
-        IotVirtualBoardPayload payload = new IotVirtualBoardPayload();
-        payload.setGid(dr.getPlayerId());
-        payload.setSid(dr.getSiteId());
-        payload.setName("Test name");
-        VirtualBoardData data = new VirtualBoardData();
-        data.setLight("player");
-        data.setStatus(dr.getState());
+        System.out.println("VirtualBoard: Handling request: " + dr);
+        IoTPayload payload = new IoTPayload();
+        payload.setPlayerId(dr.getPlayerId());
+        payload.setSiteId(dr.getSiteId());
+        payload.setRoomName(dr.getRoomName());
+        Data data = new Data();
+        data.setLightId(dr.getLightId());
+        data.setLightState(dr.getState());
+        data.setLightAddress(dr.getLightAddress());
         payload.setData(data);
-        
+
         Devices devices = devicesByPlayer.get(dr.getPlayerId());
-        for (String deviceId : devices.getDevices()) {
-            Request r = new Request();
-            r.setCommand("update");
-            r.setDeviceId(deviceId);
-            r.setDeviceType(supportedDeviceType);
-            r.setEvent(payload);
-            messageStack.addRequest(r);
+        if (devices != null) {
+            for (String deviceId : devices.getDevices()) {
+                IoTMessage r = new IoTMessage();
+                r.setCommand("update");
+                r.setDeviceId(deviceId);
+                r.setDeviceType(supportedDeviceType);
+                r.setEvent(payload);
+                System.out.println("VirtualBoard: About to add message to queue: " + r);
+                messageStack.addRequest(r);
+            }
         }
-        
+
     }
 
 }

@@ -16,7 +16,6 @@
 package org.gameontext.iotboard;
 
 import java.net.HttpURLConnection;
-import java.net.URI;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +32,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.gameontext.iotboard.models.devices.BoardControl;
-import org.gameontext.iotboard.models.devices.DeviceHandler;
+import org.gameontext.iotboard.provider.BoardProviders;
+import org.gameontext.iotboard.provider.DeviceHandler;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
