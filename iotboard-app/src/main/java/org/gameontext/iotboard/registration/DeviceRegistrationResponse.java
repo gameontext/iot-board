@@ -3,6 +3,13 @@ package org.gameontext.iotboard.registration;
 import java.util.List;
 
 public class DeviceRegistrationResponse {
+    @Override
+    public String toString() {
+        return "DeviceRegistrationResponse [iotMessagingOrgAndHost=" + iotMessagingOrgAndHost + ", iotMessagingHost="
+                + iotMessagingHost + ", iotMessagingPort=" + iotMessagingPort + ", deviceId=" + deviceId
+                + ", deviceAuthToken=" + deviceAuthToken + ", iotClientId=" + iotClientId + ", eventTopic=" + eventTopic
+                + ", cmdTopic=" + cmdTopic + ", reportedErrors=" + reportedErrors + "]";
+    }
     private String iotMessagingOrgAndHost;
     private String iotMessagingHost;
     private int iotMessagingPort;

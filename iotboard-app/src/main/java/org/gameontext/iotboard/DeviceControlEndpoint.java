@@ -68,6 +68,7 @@ public class DeviceControlEndpoint {
         System.out.println("Registering device: " + registration.getDeviceId());
         DeviceHandler provider = providers.getProvider(registration.getDeviceType());
         DeviceRegistrationResponse drr = provider.registerDevice(registration);
+        System.out.println("Returning registration " + drr);
         if (drr.hasReportedErrors()) {
             return Response.status(400).entity(drr).build();
         }
