@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package org.gameontext.iotboard.provider.virtualled;
+package org.gameontext.iotboard.provider.ledboard;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.gameontext.iotboard.iot.DeviceUtils;
@@ -31,8 +30,7 @@ import org.gameontext.iotboard.registration.RegistrationUtils;
 
 import com.ibm.iotf.client.app.Event;
 
-@ApplicationScoped
-public class VirtualLEDBoardProvider implements DeviceHandler {
+public abstract class LEDBoardProvider implements DeviceHandler {
     
     @Inject
     MessageStack messageStack;
@@ -40,8 +38,6 @@ public class VirtualLEDBoardProvider implements DeviceHandler {
     @Inject
     RegistrationUtils regUtils;
     
-    private static final String supportedDeviceType = "VirtualLEDBoard";
-
     @Override
     public void process(BoardControl msg) {
         System.out.println("Processing control message : " + msg);
@@ -56,15 +52,10 @@ public class VirtualLEDBoardProvider implements DeviceHandler {
     }
 
     @Override
-    public String getSupportedDeviceType() {
-        return supportedDeviceType;
-    }
-
-    @Override
     public DeviceRequest translateRequest(Event event) throws CannotTranslateEventException {
         // The virtual board should never have to process a request
         // as it cannot originate an event. So this should trigger a failure
-        throw new CannotTranslateEventException(supportedDeviceType);
+        throw new CannotTranslateEventException(getSupportedDeviceType());
     }
 
     @Override
@@ -85,7 +76,7 @@ public class VirtualLEDBoardProvider implements DeviceHandler {
         IoTMessage r = new IoTMessage();
         r.setCommand("update");
         r.setDeviceId(requestedDevice);
-        r.setDeviceType(supportedDeviceType);
+        r.setDeviceType(getSupportedDeviceType());
         r.setEvent(pinUpdate);
         System.out.println("VirtualLEDBoard: About to add message to queue: " + r);
         messageStack.addRequest(r);

@@ -23,9 +23,10 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.gameontext.iotboard.provider.browser.VirtualBoardProvider;
+import org.gameontext.iotboard.provider.ledboard.LEDBoardProvider;
+import org.gameontext.iotboard.provider.ledboard.Virtual;
 import org.gameontext.iotboard.provider.room.RoomProvider;
-import org.gameontext.iotboard.provider.virtual.VirtualBoardProvider;
-import org.gameontext.iotboard.provider.virtualled.VirtualLEDBoardProvider;
 
 
 /**
@@ -40,8 +41,8 @@ public class BoardProviders {
     @Inject
     VirtualBoardProvider vbp;
     
-    @Inject
-    VirtualLEDBoardProvider velbp;
+    @Inject @Virtual
+    LEDBoardProvider velbp;
     
     @Inject
     RoomProvider rp;

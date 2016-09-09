@@ -1,4 +1,4 @@
-package org.gameontext.iotboard.provider.virtualled;
+package org.gameontext.iotboard.provider.ledboard;
 
 public class PinUpdate {
 
