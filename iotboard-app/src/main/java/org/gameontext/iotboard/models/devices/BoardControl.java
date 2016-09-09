@@ -17,23 +17,25 @@ package org.gameontext.iotboard.models.devices;
 
 //top level element for controlling the board state
 public class BoardControl {
-    private String gameonId;
+    private String playerId;
     private String siteId;
+    private String roomName;
     private DeviceData data;
+    
     
     public BoardControl(){}
        
     public BoardControl(String gameonId, String siteId) {
         super();
-        this.gameonId = gameonId;
+        this.playerId = gameonId;
         this.siteId = siteId;
     }
 
     public String getGameonId() {
-        return gameonId;
+        return playerId;
     }
     public void setGameonId(String gameonId) {
-        this.gameonId = gameonId;
+        this.playerId = gameonId;
     }
     public String getSiteId() {
         return siteId;
@@ -50,6 +52,15 @@ public class BoardControl {
 
     @Override
     public String toString() {
-        return "BoardControl [gameonId=" + gameonId + ", siteId=" + siteId + ", data=" + data + "]";
+        return "BoardControl [gameonId=" + playerId + ", siteId=" + siteId + ", data=" + data + ", roomName=" + roomName
+                + "]";
+    }
+
+    public String getRoomName() {
+        return roomName;
+    }
+
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
     }
 }

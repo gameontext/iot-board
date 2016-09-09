@@ -26,6 +26,7 @@ import org.gameontext.iotboard.iot.DeviceUtils;
 import org.gameontext.iotboard.iot.IoTMessage;
 import org.gameontext.iotboard.iot.MessageStack;
 import org.gameontext.iotboard.models.devices.BoardControl;
+import org.gameontext.iotboard.models.devices.DeviceData;
 import org.gameontext.iotboard.provider.CannotTranslateEventException;
 import org.gameontext.iotboard.provider.Data;
 import org.gameontext.iotboard.provider.DeviceHandler;
@@ -52,7 +53,21 @@ public class BrowserProvider implements DeviceHandler {
 
     @Override
     public void process(BoardControl msg) {
-        System.out.println("Processing control message : " + msg);
+        System.out.println("VirtualBoard: Processing control message : " + msg);
+        
+        IoTPayload payload = new IoTPayload();
+        payload.setPlayerId(msg.getGameonId());
+        payload.setSiteId(msg.getSiteId());
+        payload.setRoomName(msg.getRoomName());
+        DeviceData requestData = msg.getData();
+        Data data = new Data();
+        data.setLightId(requestData.getLight());
+        data.setLightState(requestData.isState());
+        data.setLightAddress(null);
+        payload.setData(data);
+        
+        addMessagesToStack(msg.getGameonId(), payload);
+        System.out.println("VirtualBoard: Processed control message : " + msg);
     }
 
     public DeviceRegistrationResponse registerDevice(DeviceRegistrationRequest registration) {
@@ -124,7 +139,12 @@ public class BrowserProvider implements DeviceHandler {
         data.setLightAddress(dr.getLightAddress());
         payload.setData(data);
 
-        DeviceList devices = devicesByPlayer.get(dr.getPlayerId());
+        addMessagesToStack(dr.getPlayerId(), payload);
+    }
+    
+    
+    private void addMessagesToStack(String playerId, IoTPayload payload) {
+        DeviceList devices = devicesByPlayer.get(playerId);
         if (devices != null) {
             for (String deviceId : devices.getDevices()) {
                 IoTMessage r = new IoTMessage();
@@ -136,7 +156,6 @@ public class BrowserProvider implements DeviceHandler {
                 messageStack.addRequest(r);
             }
         }
-
     }
 
 }
