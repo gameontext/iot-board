@@ -38,14 +38,14 @@ import org.gameontext.iotboard.registration.RegistrationUtils;
 import com.ibm.iotf.client.app.Event;
 
 @ApplicationScoped
-public class VirtualBoardProvider implements DeviceHandler {
+public class BrowserProvider implements DeviceHandler {
 
     @Inject
     MessageStack messageStack;
 
     private static final String supportedDeviceType = "VirtualBoard";
 
-    ConcurrentMap<String, Devices> devicesByPlayer = new ConcurrentHashMap<String, Devices>();
+    ConcurrentMap<String, DeviceList> devicesByPlayer = new ConcurrentHashMap<String, DeviceList>();
 
     @Inject
     RegistrationUtils regUtils;
@@ -58,9 +58,9 @@ public class VirtualBoardProvider implements DeviceHandler {
     public DeviceRegistrationResponse registerDevice(DeviceRegistrationRequest registration) {
         DeviceUtils.assignDeviceId(registration);
 
-        Devices devices = devicesByPlayer.get(registration.getPlayerId());
+        DeviceList devices = devicesByPlayer.get(registration.getPlayerId());
         if (devices == null) {
-            devices = new Devices();
+            devices = new DeviceList();
             devicesByPlayer.put(registration.getPlayerId(), devices);
         }
 
@@ -124,7 +124,7 @@ public class VirtualBoardProvider implements DeviceHandler {
         data.setLightAddress(dr.getLightAddress());
         payload.setData(data);
 
-        Devices devices = devicesByPlayer.get(dr.getPlayerId());
+        DeviceList devices = devicesByPlayer.get(dr.getPlayerId());
         if (devices != null) {
             for (String deviceId : devices.getDevices()) {
                 IoTMessage r = new IoTMessage();

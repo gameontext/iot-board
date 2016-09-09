@@ -3,7 +3,7 @@ package org.gameontext.iotboard.provider.browser;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Devices {
+public class DeviceList {
 
     private List<String> devices = new ArrayList<String>();
 
