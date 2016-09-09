@@ -3,14 +3,45 @@ package org.gameontext.iotboard.iot;
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class IoTConfiguration {
-    private String iotOrg = "pmoxqf";
-    private String iotApiHost = "internetofthings.ibmcloud.com";
-    private String iotMessagingHost = "messaging.internetofthings.ibmcloud.com";
-    private int iotMessagingPort = 1883;
+    private String iotOrg;
+    private String iotApiHost;
+    private String iotMessagingHost;
+    private int iotMessagingPort;
+    private boolean mandatoryConfigProvided = true;
+    private String iotApiKey;
+    private String iotApiToken;
+    
+    @PostConstruct
+    public void init() {
+        // Pull the config form the environment
+        iotOrg = getenv("IOT_ORG");
+        iotApiHost = getenv("IOT_API_HOST", "internetofthings.ibmcloud.com");
+        iotMessagingHost = getenv("IOT_MESSAGING_HOST", "messaging.internetofthings.ibmcloud.com");
+        iotMessagingPort = Integer.parseInt(getenv("IOT_MESSAGING_PORT", "1883"));
+        iotApiKey = getenv("IOT_API_KEY");
+        iotApiToken = getenv("IOT_API_TOKEN");
+    }
+
+    private String getenv(String envName, String defaultValue) {
+        String returnedValue = System.getenv(envName);
+        if (didntProvide(envName) && didntProvide(defaultValue)) {
+            mandatoryConfigProvided = false;
+        }
+        return returnedValue;
+    }
+
+    private boolean didntProvide(String defaultValue) {
+        return defaultValue == null || defaultValue.trim().length() == 0;
+    }
+
+    private String getenv(String envName) {
+        return getenv(envName, null);
+    }
 
     public String getIotOrg() {
         return iotOrg;
@@ -29,11 +60,11 @@ public class IoTConfiguration {
     }
 
     public String getApiKey() {
-        return "a-pmoxqf-g2wyv0orrf";
+        return iotApiKey;
     }
 
     public String getApiToken() {
-        return "qz(8+qbVNdLDfED0si";
+        return iotApiToken;
     }
 
     public String getIotMessagingHost() {
@@ -54,4 +85,9 @@ public class IoTConfiguration {
         }
         return null;
     }
+
+    public boolean isMandatoryConfigProvided() {
+        return mandatoryConfigProvided;
+    }
+
 }
