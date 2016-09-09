@@ -13,7 +13,7 @@ public class MessageStack implements Runnable {
     @Inject
     IoTAppClient appClient;
     
-    private BlockingQueue<IoTMessage> requests = new ArrayBlockingQueue<IoTMessage>(20);
+    private BlockingQueue<IoTMessage> requests = new ArrayBlockingQueue<IoTMessage>(1000);
     private volatile boolean running = false;
 
     @Override
