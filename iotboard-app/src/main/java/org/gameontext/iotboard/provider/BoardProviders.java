@@ -25,6 +25,7 @@ import javax.inject.Inject;
 
 import org.gameontext.iotboard.provider.browser.BrowserProvider;
 import org.gameontext.iotboard.provider.ledboard.LEDBoardProvider;
+import org.gameontext.iotboard.provider.ledboard.Physical;
 import org.gameontext.iotboard.provider.ledboard.Virtual;
 import org.gameontext.iotboard.provider.room.RoomProvider;
 
@@ -46,6 +47,9 @@ public class BoardProviders {
     
     @Inject
     RoomProvider rp;
+    
+    @Inject @Physical
+    LEDBoardProvider plbp;
     
     private final ConcurrentMap<String, DeviceHandler> providers = new ConcurrentHashMap<>();
     
@@ -74,5 +78,6 @@ public class BoardProviders {
         addRegistration(vbp);
         addRegistration(velbp);
         addRegistration(rp);
+        addRegistration(plbp);
     }
 }
